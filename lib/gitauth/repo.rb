@@ -1,5 +1,5 @@
 #--
-#   Copyright (C) 2009 BrownBeagle
+#   Copyright (C) 2009 Brown Beagle Software
 #   Copyright (C) 2008 Darcy Laycock <sutto@sutto.net>
 #
 #   This program is free software: you can redistribute it and/or modify
