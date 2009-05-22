@@ -6,16 +6,20 @@
       <input type="text" name="repo[name]" id="repo_name" />
     </div>
     <div class="row">
-      <label for="repo_path">Path (optional)</label>
+      <label for="repo_path">Path: (optional)</label>
       <input type="text" name="repo[path]" id="repo_path" />
     </div>
     <div class="buttons">
-      <input type="submit" value="Add Repository" />
+      <input type="submit" value="Add Repository" /> or <a href="#" onclick="hideRepoForm(); return false;">Cancel</a>
     </div>
   </form>
   <ul id="repositories">
     <% @repos.each do |r| %>
-      <li><%= h(r.name) %> <%= link_to "(edit)", "/repos/#{URI.encode(r.name)}" %></li>
+      <li>
+        <span class="tag repo">repo</span>
+        <%= h(r.name) %>
+        <%= link_to "(edit)", "/repos/#{URI.encode(r.name)}" %>
+      </li>
     <% end %>
   </ul>
 </div>
@@ -33,15 +37,19 @@
     </div>
     <div class="row">
       <label for="user_key">Public Key:</label>
-      <textarea name="user[key]" id="user_key"></textarea>
+      <textarea name="user[key]" id="user_key" rows="3" cols="38"></textarea>
     </div>
     <div class="buttons">
-      <input type="submit" value="Add User" />
+      <input type="submit" value="Add User" /> or <a href="#" onclick="hideUserForm(); return false;">Cancel</a>
     </div>
   </form>
   <ul id="users">
     <% @users.each do |u| %>
-      <li><%= h(u.name) %> <%= link_to "(edit)", "/users/#{URI.encode(u.name)}" %></li>
+      <li>
+        <span class="tag <%= u.admin? ? "admin" : "user" %>"><%= u.admin? ? "admin" : "user" %></span>
+        <%= h(u.name) %>
+        <%= link_to "(edit)", "/users/#{URI.encode(u.name)}" %>
+      </li>
     <% end %>
   </ul>
 </div>

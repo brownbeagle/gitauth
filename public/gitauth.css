@@ -48,10 +48,6 @@ blockquote, q {
 
 /* Other Stuff */
 
-form {
-  display: none;
-}
-
 body {
   background: #222;
 }
@@ -85,4 +81,131 @@ body {
   color: #777;
   text-align: center;
   margin: 1em 0 0;
+}
+
+.group {
+  margin: 0.5em 0 1.5em;
+}
+
+.group h2 {
+  padding: 0.5em;
+  text-transform: uppercase;
+  background: #EEE;
+  border-top: 0.1em solid #999;
+  border-bottom: 0.1em solid #999;
+  font-weight: bold;
+  font-size: 1.25em;
+  color: #333;
+}
+
+.group h2 a {
+  text-decoration: none;
+  color: #233967;
+  margin-left: 0.15em;
+}
+
+form {
+  background: #FDFFE9;
+  border: 0.5em solid #F0EBD4;
+  padding: 0.5em;
+  margin: 1em;
+  display: none;
+}
+
+form .row {
+  margin: 0 0.5em 0.5em;
+  line-height: 1.8em;
+  display: inline-block;
+  display: block;
+}
+
+form .row:after {
+  clear: both;
+  content: '.';
+  display: block;
+  visibility: hidden;
+  height: 0; 
+}
+
+form .row label {
+  display: block;
+  float: left;
+  zoom: 1;
+  width: 30%;
+  font-weight: bold;
+  font-size: 1.1em;
+  padding-top: 0.15em;
+}
+
+form .row input, form .row textarea {
+  font-size: 1.1em;
+  padding: 0.25em;
+  border: 0.15em solid #AAA;
+}
+
+form .row input {
+  width: 60%;
+}
+
+form .row input:focus, form .row textarea:focus {
+  border-color: #3E5299;
+}
+
+form .buttons {
+  text-align: center;
+  padding: 0.75em;
+}
+
+form .buttons a {
+  text-decoration: none;
+  color: #204B99;
+}
+
+div.message {
+  font-size: 1.2em;
+  text-align: center;
+  padding: 0.5em 1em 1.5em;
+  color: #DE701E;
+}
+
+/* Listings */
+
+ul#users, ul#repositories {
+  line-height: 1.8em;
+  margin: 0.5em 1em;
+}
+
+ul#users li, ul#repositories li {
+  padding: 0.5em 0;
+  color: #333;
+}
+
+ul#users li span.tag, ul#repositories li span.tag {
+  display: inline-block;
+  width: 4em;
+  color: white;
+  background: #666;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  font-weight: bold;
+  text-align: center;
+  padding: 0 0.75em;
+  margin-right: 0.5em;
+}
+
+ul#users li span.tag.admin {
+  background: #163F10;
+}
+
+ul#users li span.tag.user {
+  background: #141A3F;
+}
+
+ul#repositories li span.tag.repo {
+  background: #720E12;
+}
+
+ul#users li a, ul#repositories li a {
+  text-decoration: none;
+  color: #395F99;
 }

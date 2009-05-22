@@ -11,3 +11,19 @@ function addRepo()
   $("#add-repo").slideDown("slow");
   return false;
 }
+
+function hideUserForm()
+{
+  $("#add-user-link").show();
+  $("#add-user").slideUp("slow");
+}
+
+function hideRepoForm()
+{
+  $("#add-repo-link").show();
+  $("#add-repo").slideUp("slow");
+}
+
+$(function() {
+  setTimeout(function() { $(".message").slideUp("slow"); }, 7500);
+});
