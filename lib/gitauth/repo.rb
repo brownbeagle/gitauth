@@ -20,7 +20,7 @@ require 'fileutils'
 module GitAuth
   class Repo
     REPOS_PATH = File.join(GitAuth::GITAUTH_DIR, "repositories.yml")
-    
+    NAME_RE    = /^([\w\_\-\.\+]+(\.git)?)$/i
     def self.all
       @@all_repositories ||= nil
     end
@@ -47,7 +47,8 @@ module GitAuth
     end
     
     def self.create(name, path = name)
-      return false unless self.get(name).nil?
+      return false if name.nil? || path.nil?
+      return false unless self.get(name).nil? && name =~ NAME_RE && path =~ NAME_RE 
       repository = self.new(name, path)
       if repository.create_repo!
         self.load!

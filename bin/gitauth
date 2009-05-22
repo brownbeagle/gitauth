@@ -153,6 +153,11 @@ class GitAuthRunner < Thor
       exit! 1
   end
   
+  def webapp
+    GitAuth.setup!
+    GitAuth::WebApp.run!
+  end
+  
 end
 
 if ARGV.empty?

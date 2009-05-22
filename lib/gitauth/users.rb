@@ -48,6 +48,9 @@ module GitAuth
     end
     
     def self.create(name, admin, key)
+      # Basic sanity checking.
+      return false if name.nil? || admin.nil? || key.nil?
+      return false unless name =~ /^([\w\_\-\.]+)$/ && !!admin == admin
       user = self.new(name, admin)
       if user.write_ssh_key!(key)
         self.load!
@@ -67,7 +70,7 @@ module GitAuth
     end
     
     def write_ssh_key!(key)
-      cleaned_key = clean_ssh_key(key)
+      cleaned_key = self.class.clean_ssh_key(key)
       if cleaned_key.nil?
         return false
       else
@@ -107,7 +110,7 @@ module GitAuth
       end
     end
     
-    def clean_ssh_key(key)
+    def self.clean_ssh_key(key)
       if key =~ /^(ssh-\w+ [a-zA-Z0-9\/\+]+==) .*$/
         return $1
       else

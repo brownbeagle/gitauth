@@ -1,0 +1,47 @@
+<div class="group">
+  <h2>Repositories <a href="#" onclick="addRepo(); return false;"  title="Add a new repository" id="add-repo-link">[+]</a></h2>
+  <form id="add-repo" action="/repos" method="post">
+    <div class="row">
+      <label for="repo_name">Name:</label>
+      <input type="text" name="repo[name]" id="repo_name" />
+    </div>
+    <div class="row">
+      <label for="repo_path">Path (optional)</label>
+      <input type="text" name="repo[path]" id="repo_path" />
+    </div>
+    <div class="buttons">
+      <input type="submit" value="Add Repository" />
+    </div>
+  </form>
+  <ul id="repositories">
+    <% @repos.each do |r| %>
+      <li><%= h(r.name) %> <%= link_to "(edit)", "/repos/#{URI.encode(r.name)}" %></li>
+    <% end %>
+  </ul>
+</div>
+
+<div class="group">
+  <h2>Users <a href="#" onclick="addUser(); return false;" title="Add a new user" id="add-user-link">[+]</a></h2>
+  <form id="add-user" action="/users" method="post">
+    <div class="row">
+      <label for="user_name">Name:</label>
+      <input type="text" name="user[name]" id="user_name" />
+    </div>
+    <div class="row">
+      <label for="user_admin">Admin?</label>
+      <input type="checkbox" name="user[admin]" id="user_admin" value="1" />
+    </div>
+    <div class="row">
+      <label for="user_key">Public Key:</label>
+      <textarea name="user[key]" id="user_key"></textarea>
+    </div>
+    <div class="buttons">
+      <input type="submit" value="Add User" />
+    </div>
+  </form>
+  <ul id="users">
+    <% @users.each do |u| %>
+      <li><%= h(u.name) %> <%= link_to "(edit)", "/users/#{URI.encode(u.name)}" %></li>
+    <% end %>
+  </ul>
+</div>
