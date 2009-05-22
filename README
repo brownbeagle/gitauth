@@ -4,6 +4,11 @@ If you've heard of Gitosis before, GitAuth is like Gitosis but A) in Ruby, B) sl
 
 At the moment configuration / adding users is done via a single command - +gitauth+. For usage, see below.
 
+=== License
+
+GitAuth is licensed under AGPL, with parts of the code being derived
+from Gitorius - http://gitorious.org/
+
 === Installing GitAuth
 
 Getting started is relatively simple. First of, you'll need to log onto the remote server / your git host. Next, you'll need to install the gem:
@@ -15,7 +20,7 @@ Next, you'll want to (in most cases anyway) use a specific +git+ user to host re
 
 Using the example of ubuntu, we'll add a git user under which all actions will now take place (note, this is essentially the same as gitosis):
 
-  sudo adduser --disabled-password --group --home /home/git gecos 'gitauth user for version control' --system git
+  sudo adduser --disabled-password --shell /bin/bash --group --home /home/git --system --gecos 'gitauth user for version control' git
   
 Now, whenever you run the +gitauth+ executable, you'll do so as the user you just created
 above. For simplicity purposes, I added the the following to my zsh profile so I always

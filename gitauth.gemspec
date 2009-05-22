@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-
 Gem::Specification.new do |s|
   s.name = %q{gitauth}
   s.version = "0.0.1"
@@ -11,8 +9,8 @@ Gem::Specification.new do |s|
   s.description = %q{Git Authentication Server}
   s.email = %q{sutto@sutto.net}
   s.executables = ["gitauth", "gitauth-shell"]
-  s.extra_rdoc_files = ["README.textile"]
-  s.files = ["README", "bin/gitauth", "bin/gitauth-shell", "lib/gitauth.rb", "lib/gitauth/client.rb", "lib/gitauth/command.rb", "lib/gitauth/repo.rb", "lib/gitauth/users.rb"]
+  s.extra_rdoc_files = ["README", "LICENSE"]
+  s.files = ["README", "LICENSE", "bin/gitauth", "bin/gitauth-shell", "lib/gitauth.rb", "lib/gitauth/client.rb", "lib/gitauth/command.rb", "lib/gitauth/repo.rb", "lib/gitauth/users.rb"]
   s.has_rdoc = false
   s.homepage = %q{http://github.com/brownbeagle/gitauth}
   s.rdoc_options = ["--inline-source", "--charset=UTF-8"]

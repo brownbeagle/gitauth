@@ -1,4 +1,23 @@
 #!/usr/bin/env ruby
+
+#--
+#   Copyright (C) 2009 BrownBeagle
+#   Copyright (C) 2008 Darcy Laycock <sutto@sutto.net>
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU Affero General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU Affero General Public License for more details.
+#
+#   You should have received a copy of the GNU Affero General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#++
+
 require 'rubygems'
 require 'readline'
 require 'thor'
@@ -97,7 +116,7 @@ class GitAuthRunner < Thor
     FileUtils.mkdir(gitauth_folder) if !File.exist?(gitauth_folder) || !File.directory?(gitauth_folder)
     gitauth_settings_path = File.join(gitauth_folder, "settings.yml")
     unless File.exist?(gitauth_settings_path) || (options && options[:force_config])
-      print "Where did you want repositories to be stored? (default: ~/repositories/)"
+      print "Where did you want repositories to be stored? (default: ~/repositories/): "
       path = Readline.readline.strip
       path = File.expand_path("~/repositories") if path.empty?
       begin
@@ -107,23 +126,25 @@ class GitAuthRunner < Thor
         $stderr.puts "Please check again"
         exit! 1
       end
-      gitauth_shell_path = File.join(GitAuth::BASE_DIR, "bin", "gitauth-shell")
-      $stdout.print "Is gitauth-shell in your path (if not, '#{gitauth_shell_path}' will be used): (y/n)"
-      gitauth_shell_path = "gitauth-shell" if Readline.readline =~ /^y/i
+      current_gitauth_shell_path = File.join(GitAuth::BASE_DIR, "bin", "gitauth-shell")
+      $stdout.print "What is the path to your gitauth-shell (default: '#{current_gitauth_shell_path}'):  "
+      gitauth_shell_path = Readline.readline
+      gitauth_shell_path = current_gitauth_shell_path if gitauth_shell_path.empty?
       File.open(gitauth_settings_path, "w+") do |f|
         f.write({
           "base_path"            => path,
           "authorized_keys_file" => authorized_keys,
           "shell_executable"     => gitauth_shell_path
         }.to_yaml)
-        if !public_key_path.nil? && File.exist?(public_key_path)
-          created = GitAuth::Users.create("admin", true, File.read(public_key_path).strip)
-          if created
-            $stdout.puts "Admin User Created."
-          else
-            $stderr.puts "An admin user couldn't be created."
-            exit! 1
-          end
+      end
+      if !public_key_path.nil? && File.exist?(public_key_path)
+        GitAuth.setup!
+        created = GitAuth::Users.create("admin", true, File.read(public_key_path).strip)
+        if created
+          $stdout.puts "Admin User Created."
+        else
+          $stderr.puts "An admin user couldn't be created."
+          exit! 1
         end
       end
     end
