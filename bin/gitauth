@@ -1,0 +1,126 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'thor'
+require File.join(File.dirname(__FILE__), "..", "lib", "gitauth")
+
+
+class GitAuthRunner < Thor
+  
+  
+  desc "addrepo REPO-NAME [PATH-PART]", "Adds a new repository"
+  def addrepo(name, path = name)
+    GitAuth.setup!
+    if GitAuth::Repo.create(name, path)
+      $stdout.puts "Repo was successfully created"
+    else
+      $stderr.puts "There was an error creating the repo"
+      exit! 1
+    end
+  end
+  
+  desc "adduser NAME PATH-TO-PUBLIC-KEY [--admin]", "Adds a user"
+  method_options :admin => :boolean
+  def adduser(name, key_path)
+    GitAuth.setup!
+    admin = !!(options && options[:admin])
+    if GitAuth::Users.create(name, admin, File.read(key_path).strip)
+      $stdout.puts "User added"
+    else
+      $stderr.puts "There was an error adding the given user"
+      exit! 
+    end
+  end
+  
+  desc "repos", "Lists all the current repos"
+  def repos
+    GitAuth.setup!
+    $stdout.puts "repositories:"
+    GitAuth::Repo.all.each do |repo|
+      $stdout.puts " - #{repo.name}"
+    end
+  end
+  
+  desc "users", "Lists all users in the system"
+  def users
+    GitAuth.setup!
+    $stdout.puts "users:"
+    GitAuth::Users.all.each do |user|
+      $stdout.puts "- #{user.name}"
+    end
+  end
+  
+  
+  desc "permissions REPO USER [PERMISION=all,read,write]", "Adds Permissions for a user to a repository"
+  def permissions(repo, user, permissions = "all")
+    GitAuth.setup!
+    unless %w(read write all).include?(permissions)
+      $stderr.puts "Invalid permissions: #{permissions}"
+      exit! 1
+    end
+    repo = GitAuth::Repo.get(repo)
+    user = GitAuth::Users.get(user)
+    if repo.nil? || user.nil?
+      $stderr.puts "Invalid repository or user, please check the name"
+      exit! 1
+    end
+    repo.writeable_by(user) if %w(all write).include?(permissions)
+    repo.readable_by(user) if %w(all read).include?(permissions)
+    GitAuth::Users.save!
+    GitAuth::Repo.save!
+    $stdout.puts "Permissions Added"
+  end
+  
+  desc "install", "creates and sets the permissions for .ssh and .ssh/authorized keys"
+  def install
+    $stdout.print "Are you logged in as the correct user? (y/n) "
+    answer = $stdin.gets
+    if answer !~ /^y/i
+      $stderr.puts "Please log in as the correct user and re-run"
+      exit! 1
+    end
+    require 'fileutils'
+    folder = File.expand_path("~/.ssh")
+    if !File.exist?(folder) || !File.directory?(folder)
+      FileUtils.mkdir(folder)
+      FileUtils.chmod(0700, folder)
+    end
+    authorized_keys = File.join(folder, "authorized_keys")
+    if !File.exist?(authorized_keys)
+      File.open(authorized_keys, "w+") do |f|
+        f.puts "## GitAuth - DO NO EDIT BELOW THIS LINE ##"
+      end
+      FileUtils.chmod(0600, authorized_keys)
+    end
+    gitauth_folder = File.expand_path("~/.gitauth/")
+    FileUtils.mkdir(gitauth_folder) if !File.exist?(gitauth_folder) || !File.directory?(gitauth_folder)
+    gitauth_settings_path = File.join(gitauth_folder, "settings.yml")
+    unless File.exist?(gitauth_settings_path)
+      print "Where did you want repositories to be stored? (default: ~/repositories/)"
+      path = $stdin.gets.strip
+      path = File.expand_path("~/repositories") if path.empty?
+      begin
+        FileUtils.mkdir_p(path)
+      rescue
+        $stderr.puts "There was an error making the repository folder: #{path}"
+        $stderr.puts "Please check again"
+        exit! 1
+      end
+      File.open(gitauth_settings_path, "w+") do |f|
+        f.write({
+          "base_path"            => path,
+          "authorized_keys_file" => authorized_keys
+        }.to_yaml)
+      end
+    end
+  rescue Errno::EACCES
+      $stderr.puts "Hey, it looks you don't have access to that - sorry!"
+      exit! 1
+  end
+  
+end
+
+if ARGV.empty?
+  GitAuthRunner.new.help
+else
+  GitAuthRunner.start
+end
