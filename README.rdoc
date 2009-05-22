@@ -28,11 +28,17 @@ had it available. If you don't wish to, just use as you would without the alias:
 
   alias asgit='sudo -H -u git'
   
-And finally, to create a settings file and initialize .ssh and authorized_keys:
+And finally, to create a settings file and initialize .ssh and authorized_keys, perform the
+following:
 
   asgit gitauth install
   
-Note that if you append a path to a public key to the end of the install command,
+Note that when it asks you for the gitauth shell path, the default will lock
+it to the current gitauth version SO if you want it to stay up to date between gem versions
+point it to the path for always-current executable (e.g. on Ubuntu 9.04 w/ apt-get ruby + gems,
++/var/lib/gems/1.8/bin/gitauth-shell+)  
+
+Also, Note that if you append a path to a public key to the end of the install command,
 it will initialize a new +admin+ user who can also login via SSH. e.g.
 
   asgit gitauth install id_rsa.pub
