@@ -47,9 +47,9 @@ module GitAuth
         end
       end
     rescue Exception => e
-      $stderr.puts "Exception: #{e.class.name}: #{e.message}"
+      GitAuth.logger.fatal "Exception: #{e.class.name}: #{e.message}"
       e.backtrace.each do |l|
-        $stderr.puts "  => #{l}"
+        GitAuth.logger.fatal "  => #{l}"
       end
       execute_callback! :fatal_error
     end

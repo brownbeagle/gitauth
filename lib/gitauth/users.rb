@@ -52,8 +52,8 @@ module GitAuth
       if cleaned_key.nil?
         return false
       else
-        gitauth_path = File.join(GitAuth::BASE_DIR, "bin", "gitauth-shell")
-        output = "command=\"#{gitauth_path} #{@name}\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty #{cleaned_key}"
+        gitauth_path = GitAuth.settings.shell_executable
+        output = "command=\"#{gitauth_path} #{@name}\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding#{shell_accessible? ? "" : ",no-pty"} #{cleaned_key}"
         File.open(GitAuth.settings.authorized_keys_file, "a+") do |file|
           file.puts output
         end
@@ -61,16 +61,20 @@ module GitAuth
       end
     end
     
-    def shell_accessible?
+    def admin?
       !!@admin
     end
     
+    def shell_accessible?
+      admin?
+    end
+    
     def pushable?(repo)
-      repo.writeable_by?(self)
+      admin? || repo.writeable_by?(self)
     end
     
     def pullable?(repo)
-      repo.readable_by?(self)
+      admin? || repo.readable_by?(self)
     end
     
     def can_execute?(command, repo)

@@ -8,7 +8,7 @@ module GitAuth
   GITAUTH_DIR   = File.expand_path("~/.gitauth/")
   
   def self.logger
-    @logger ||= ::Logger.new(File.join(GITAUTH_DIR, "access.log"))
+    @logger ||= ::Logger.new(File.join(BASE_DIR, "logs", "gitauth.log"))
   end
   
   def self.settings

@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'rubygems'
+require 'readline'
 require 'thor'
 require File.join(File.dirname(__FILE__), "..", "lib", "gitauth")
 
@@ -70,10 +71,11 @@ class GitAuthRunner < Thor
     $stdout.puts "Permissions Added"
   end
   
-  desc "install", "creates and sets the permissions for .ssh and .ssh/authorized keys"
-  def install
+  desc "install [ADMIN-PUBLIC-KEY]", "creates and sets the permissions for .ssh and .ssh/authorized keys"
+  method_options :force_config => :boolean
+  def install(public_key_path = nil)
     $stdout.print "Are you logged in as the correct user? (y/n) "
-    answer = $stdin.gets
+    answer = Readline.readline
     if answer !~ /^y/i
       $stderr.puts "Please log in as the correct user and re-run"
       exit! 1
@@ -94,9 +96,9 @@ class GitAuthRunner < Thor
     gitauth_folder = File.expand_path("~/.gitauth/")
     FileUtils.mkdir(gitauth_folder) if !File.exist?(gitauth_folder) || !File.directory?(gitauth_folder)
     gitauth_settings_path = File.join(gitauth_folder, "settings.yml")
-    unless File.exist?(gitauth_settings_path)
+    unless File.exist?(gitauth_settings_path) || (options && options[:force_config])
       print "Where did you want repositories to be stored? (default: ~/repositories/)"
-      path = $stdin.gets.strip
+      path = Readline.readline.strip
       path = File.expand_path("~/repositories") if path.empty?
       begin
         FileUtils.mkdir_p(path)
@@ -105,11 +107,24 @@ class GitAuthRunner < Thor
         $stderr.puts "Please check again"
         exit! 1
       end
+      gitauth_shell_path = File.join(GitAuth::BASE_DIR, "bin", "gitauth-shell")
+      $stdout.print "Is gitauth-shell in your path (if not, '#{gitauth_shell_path}' will be used): (y/n)"
+      gitauth_shell_path = "gitauth-shell" if Readline.readline =~ /^y/i
       File.open(gitauth_settings_path, "w+") do |f|
         f.write({
           "base_path"            => path,
-          "authorized_keys_file" => authorized_keys
+          "authorized_keys_file" => authorized_keys,
+          "shell_executable"     => gitauth_shell_path
         }.to_yaml)
+        if !public_key_path.nil? && File.exist?(public_key_path)
+          created = GitAuth::Users.create("admin", true, File.read(public_key_path).strip)
+          if created
+            $stdout.puts "Admin User Created."
+          else
+            $stderr.puts "An admin user couldn't be created."
+            exit! 1
+          end
+        end
       end
     end
   rescue Errno::EACCES
