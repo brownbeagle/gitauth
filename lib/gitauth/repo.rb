@@ -18,28 +18,8 @@
 
 require 'fileutils'
 module GitAuth
-  class Repo
-    REPOS_PATH = File.join(GitAuth::GITAUTH_DIR, "repositories.yml")
+  class Repo < SaveableClass(:repositories)
     NAME_RE    = /^([\w\_\-\.\+]+(\.git)?)$/i
-    def self.all
-      @@all_repositories ||= nil
-    end
-    
-    def self.load!
-      self.all = YAML.load_file(REPOS_PATH) rescue nil if File.exist?(REPOS_PATH)
-      self.all = [] unless self.all.is_a?(Array)
-    end
-    
-    def self.save!
-      load! if self.all.nil?
-      File.open(REPOS_PATH, "w+") do |f|
-        f.write self.all.to_yaml
-      end
-    end
-    
-    def self.all=(value)
-      @@all_repositories = value
-    end
     
     def self.get(name)
       GitAuth.logger.debug "Getting Repo w/ name: '#{name}'"
@@ -67,24 +47,24 @@ module GitAuth
       @permissions = {}
     end
     
-    def writeable_by(user)
+    def writeable_by(user_or_group)
       @permissions[:write] ||= []
-      @permissions[:write] << user.name
+      @permissions[:write] << user.to_s
       @permissions[:write].uniq!
     end
     
-    def readable_by(user)
+    def readable_by(user_or_group)
       @permissions[:read] ||= []
-      @permissions[:read] << user.name
+      @permissions[:read] << user.to_s
       @permissions[:read].uniq!
     end
     
-    def writeable_by?(user)
-      (@permissions[:write] || []).include? user.name
+    def writeable_by?(user_or_group)
+      (@permissions[:write] || []).include? user.to_s
     end
     
-    def readable_by?(user)
-      (@permissions[:read] || []).include? user.name
+    def readable_by?(user_or_group)
+      (@permissions[:read] || []).include? user.to_s
     end
     
     def real_path

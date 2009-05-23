@@ -34,18 +34,24 @@ module GitAuth
     @settings ||= OpenStruct.new(YAML.load_file(File.join(GITAUTH_DIR, "settings.yml")))
   end
   
+  def self.user_or_group(name)
+    return nil if name.to_s.strip.empty?
+    return (name =~ /^@/ ? Group : User).get(name)
+  end
+  
   def self.setup!
     unless File.exist?(GITAUTH_DIR) && File.directory?(GITAUTH_DIR)
       $stderr.puts "GitAuth not been setup, please run: gitauth install"
       exit! 1
     end
     dir = File.expand_path(File.join(File.dirname(__FILE__), "gitauth"))
-    %w(repo users command client).each do |file|
+    %w(saveable_class repo users command client).each do |file|
       require File.join(dir, file)
     end
     # Load the users and repositories from a YAML File.
     GitAuth::Repo.load!
-    GitAuth::Users.load!
+    GitAuth::Users.load
+    GitAuth::Group.load!
   end
   
   def self.serve_web!
@@ -58,6 +64,7 @@ module GitAuth
     @settings = nil
     GitAuth::Repo.all  = nil
     GitAuth::Users.all = nil
+    GitAuth::Group.all = nil
     self.setup!
   end
   

@@ -18,30 +18,8 @@
 
 
 module GitAuth
-  class Users
-    
-    USERS_PATH = File.join(GitAuth::GITAUTH_DIR, "users.yml")
-    
-    def self.all
-      @@all_users ||= nil
-    end
-    
-    def self.load!
-      self.all = YAML.load_file(USERS_PATH) rescue nil if File.exist?(USERS_PATH)
-      self.all = [] unless self.all.is_a?(Array)
-    end
-    
-    def self.save!
-      load! if self.all.nil?
-      File.open(USERS_PATH, "w+") do |f|
-        f.write self.all.to_yaml
-      end
-    end
-    
-    def self.all=(value)
-      @@all_users = value
-    end
-    
+  class Users < SaveableClass(:users)
+        
     def self.get(name)
       GitAuth.logger.debug "Getting user for the name '#{name}'"
       self.all.detect { |r| r.name == name }
@@ -67,6 +45,10 @@ module GitAuth
     def initialize(name, admin = false)
       @name = name
       @admin = admin
+    end
+    
+    def to_s
+      @name.to_s
     end
     
     def write_ssh_key!(key)
