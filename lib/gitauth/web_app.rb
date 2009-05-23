@@ -91,6 +91,13 @@ module GitAuth
       if @user.nil?
         redirect root_with_message("The given user couldn't be found.")
       else
+        repos  = GitAuth::Repo.all 
+        read_perms  = repos.select { |r| r.readable_by?(@user)  }
+        write_perms = repos.select { |r| r.writeable_by?(@user) }
+        @all_access = read_perms & write_perms
+        @read_only  = read_perms - @all_access
+        @write_only = write_perms - @all_access
+        @groups = GitAuth::Group.all.select { |g| g.member?(@user) }
         erb :user
       end
     end

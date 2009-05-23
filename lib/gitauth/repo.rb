@@ -61,14 +61,14 @@ module GitAuth
     def writeable_by?(user_or_group)
       !(@permissions[:write] || []).detect do |writer|
         writer = GitAuth.get_user_or_group(writer)
-        writer == user_or_group || (writer.is_a?(Group) && writer.member?(user_or_group))
+        writer == user_or_group || (writer.is_a?(Group) && writer.member?(user_or_group, true))
       end.nil?
     end
     
     def readable_by?(user_or_group)
       !(@permissions[:read] || []).detect do |reader|
         reader = GitAuth.get_user_or_group(reader)
-        reader == user_or_group || (reader.is_a?(Group) && reader.member?(user_or_group))
+        reader == user_or_group || (reader.is_a?(Group) && reader.member?(user_or_group, true))
       end.nil?
     end
     

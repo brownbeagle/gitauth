@@ -49,8 +49,16 @@ module GitAuth
       group.is_a?(Group) && group.name == self.name
     end
     
-    def member?(user_or_group)
-      @members.include?(user_or_group.to_s) 
+    def member?(user_or_group, recurse = false, level = 0)
+      member = @members.include?(user_or_group.to_s)
+      Thread.current[:checked_groups] = [] if level == 0
+      if !member
+        return false if level > 0 && Thread.current[:checked_groups].include?(self)
+        Thread.current[:checked_groups] << self
+        member = recurse && @members.map { |m| Group.get(m) }.compact.any? { |g| g.member?(user_or_group, true, level + 1) } 
+      end
+      Thread.current[:checked_groups] = nil if level == 0
+      return member
     end
     
     def to_s

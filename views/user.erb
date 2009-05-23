@@ -1,0 +1,51 @@
+<div class="view">
+  <h2>Viewing User: <%=h @user %></h2>
+
+  <h3>Groups (Direct):</h3>
+  <ul>
+    <% if @groups.empty? %>
+      <li class="empty">This user isn't a member of any groups.</li>
+    <% end %>
+    <% @groups.each do |group| %>
+      <li><%= auto_link group.to_s %>
+    <% end %>
+  </ul>
+  
+  <h3>Repositories with Read &amp; Write Access</h3>
+  <ul>
+    <% if @user.admin? %>
+      <li>This user can read ALL repositories as an admin.</li>
+    <% else %>
+      <% if @all_access.empty? %>
+        <li class="empty">This user doesn't have read and write access to any repositories</li>
+      <% end %>
+      <% @all_access.each do |repo| %>
+        <li><%= link_to h(repo.name), "/repos/#{URI.encode(repo.name)}" %>
+      <% end %>
+    <% end %>
+  </ul>
+  
+  <% if !@user.admin? %>
+  
+  <h3>Repositories with Write-Only Access</h3>
+  <ul>
+    <% if @write_only.empty? %>
+      <li class="empty">This user doesn't have write-only to any repositories</li>
+    <% end %>
+    <% @write_only.each do |repo| %>
+      <li><%= link_to h(repo.name), "/repos/#{URI.encode(repo.name)}" %>
+    <% end %>
+  </ul>
+  
+  <h3>Repositories with Read-only Access</h3>
+  <ul>
+    <% if @read_only.empty? %>
+      <li class="empty">This user doesn't have read-only to any repositories</li>
+    <% end %>
+    <% @read_only.each do |repo| %>
+      <li><%= link_to h(repo.name), "/repos/#{URI.encode(repo.name)}" %>
+    <% end %>
+  </ul>
+  <% end %>
+  
+</div>
