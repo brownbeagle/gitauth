@@ -83,11 +83,11 @@ body {
   margin: 1em 0 0;
 }
 
-.group {
+.section {
   margin: 0.5em 0 1.5em;
 }
 
-.group h2 {
+.section h2 {
   padding: 0.5em;
   text-transform: uppercase;
   background: #EEE;
@@ -98,7 +98,7 @@ body {
   color: #333;
 }
 
-.group h2 a {
+.section h2 a {
   text-decoration: none;
   color: #233967;
   margin-left: 0.15em;
@@ -109,6 +109,9 @@ form {
   border: 0.5em solid #F0EBD4;
   padding: 0.5em;
   margin: 1em;
+}
+
+.hidden {
   display: none;
 }
 
@@ -151,6 +154,11 @@ form .row input:focus, form .row textarea:focus {
   border-color: #3E5299;
 }
 
+form .row p.hint {
+  color: #24813D;
+  padding-left: 30%;
+}
+
 form .buttons {
   text-align: center;
   padding: 0.75em;
@@ -170,17 +178,17 @@ div.message {
 
 /* Listings */
 
-ul#users, ul#repositories {
+.section ul {
   line-height: 1.8em;
   margin: 0.5em 1em;
 }
 
-ul#users li, ul#repositories li {
+.section ul li {
   padding: 0.5em 0;
   color: #333;
 }
 
-ul#users li span.tag, ul#repositories li span.tag {
+.section ul li span.tag {
   display: inline-block;
   width: 4em;
   color: white;
@@ -193,19 +201,64 @@ ul#users li span.tag, ul#repositories li span.tag {
   margin-right: 0.5em;
 }
 
-ul#users li span.tag.admin {
+#users .tag.admin {
   background: #163F10;
 }
 
-ul#users li span.tag.user {
+#users .tag.user {
   background: #141A3F;
 }
 
-ul#repositories li span.tag.repo {
+#repositories .tag.repo {
   background: #720E12;
 }
 
-ul#users li a, ul#repositories li a {
+#groups .tag.group {
+  background: #17768A;
+}
+
+.section ul li a {
   text-decoration: none;
   color: #395F99;
+}
+
+/* View Stuff */
+
+.view h2 {
+  margin: 0 0 1em;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.3em;
+  color: #333;
+  border-top: 0.1em solid #DDD;
+  border-bottom: 0.1em solid #DDD;
+  padding: 0.5em;
+}
+
+.view h3 {
+  margin: 0.5em 1em;
+  font-weight: bold;
+  color: #555;
+  font-size: 1.2em;
+}
+
+.view ul {
+  margin: 0.5em 2em;
+  line-height: 1.8em;
+  font-size: 1.1em;
+  list-style: disc inside;
+}
+
+.view ul li {
+}
+
+.view ul li.empty {
+  color: #4A5258;
+}
+
+br.clear { clear: both; }
+
+.view ul li a {
+  text-decoration: none;
+  color: #416999;
 }

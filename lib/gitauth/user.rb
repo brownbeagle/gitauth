@@ -71,10 +71,12 @@ module GitAuth
       GitAuth::Group.all.each { |g| g.remove_member(self) }
       # Remove the public key from the authorized_keys file.
       auth_keys_path = GitAuth.settings.authorized_keys_file
-      contents = File.read(auth_keys_path)
-      contents.gsub!(/#{command_prefix} ssh-\w+ [a-zA-Z0-9\/\+]+==\r?\n?/m, "")
-      File.open(auth_keys_path, "w+") { |f| f.write contents }
-      self.class.all.reject { |u| u == self }
+      if File.exist?(auth_keys_path)
+        contents = File.read(auth_keys_path)
+        contents.gsub!(/#{command_prefix} ssh-\w+ [a-zA-Z0-9\/\+]+==\r?\n?/m, "")
+        File.open(auth_keys_path, "w+") { |f| f.write contents }
+      end
+      self.class.all.reject! { |u| u == self }
       # Finally, save everything
       self.class.save!
       GitAuth::Repo.save!
@@ -117,4 +119,5 @@ module GitAuth
     end
     
   end
+  Users = User # For Backwards Compat.
 end

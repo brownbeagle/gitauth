@@ -35,7 +35,7 @@ module GitAuth
       return true
     end
     
-    attr_accessor :name, :path
+    attr_accessor :name, :path, :permissions
     
     def initialize(name, path, auto_create = false)
       @name, @path = name, path
@@ -43,7 +43,7 @@ module GitAuth
     end
     
     def ==(other)
-      other.is_a?(Repo) && other.name == name && other.path == 
+      other.is_a?(Repo) && other.name == name && other.path == path
     end
     
     def writeable_by(user_or_group)
@@ -73,7 +73,7 @@ module GitAuth
     end
     
     def remove_permissions_for(user_or_group)
-      self.permissions.each_value do |val|
+      @permissions.each_value do |val|
         val.reject! { |m| m == user_or_group.to_s }
       end
     end
@@ -97,7 +97,7 @@ module GitAuth
     
     def destroy!
       FileUtils.rm_rf(self.real_path) if File.exist?(self.real_path)
-      self.all.reject! { |r| r == self }
+      self.class.all.reject! { |r| r == self }
       self.class.save!
     end
     

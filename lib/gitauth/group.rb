@@ -1,3 +1,22 @@
+#--
+#   Copyright (C) 2009 Brown Beagle Software
+#   Copyright (C) 2008 Darcy Laycock <sutto@sutto.net>
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU Affero General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU Affero General Public License for more details.
+#
+#   You should have received a copy of the GNU Affero General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#++
+
+
 module GitAuth
   class Group < SaveableClass(:groups)
 
@@ -10,12 +29,14 @@ module GitAuth
     
     def destroy!
       GitAuth::Repo.all.each { |r| r.remove_permissions_for(self) }
+      self.class.all.each { |r| r.remove_member(self) }
       self.class.all.reject! { |g| g == self }
       GitAuth::Repo.save!
       self.class.save!
     end
     
     def add_member(member)
+      return if member == self
       @members << member.to_s
       @members.uniq!
     end

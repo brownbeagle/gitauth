@@ -1,6 +1,6 @@
-<div class="group">
-  <h2>Repositories <a href="#" onclick="addRepo(); return false;"  title="Add a new repository" id="add-repo-link">[+]</a></h2>
-  <form id="add-repo" action="/repos" method="post">
+<div class="section">
+  <h2>Repositories <a href="#" onclick="showForm('repo'); return false;"  title="Add a new repository" id="add-repo-link">[+]</a></h2>
+  <form id="add-repo" action="/repos" method="post" class="hidden">
     <div class="row">
       <label for="repo_name">Name:</label>
       <input type="text" name="repo[name]" id="repo_name" />
@@ -10,23 +10,24 @@
       <input type="text" name="repo[path]" id="repo_path" />
     </div>
     <div class="buttons">
-      <input type="submit" value="Add Repository" /> or <a href="#" onclick="hideRepoForm(); return false;">Cancel</a>
+      <input type="submit" value="Add Repository" /> or <a href="#" onclick="hideForm('repo'); return false;">Cancel</a>
     </div>
   </form>
   <ul id="repositories">
     <% @repos.each do |r| %>
       <li>
         <span class="tag repo">repo</span>
-        <%= h(r.name) %>
-        <%= link_to "(edit)", "/repos/#{URI.encode(r.name)}" %>
+        <%= h(r.name) %> -
+        <%= link_to "view", "/repos/#{URI.encode(r.name)}" %> or
+        <%= delete_link "remove", "/repos/#{URI.encode(r.name)}" %>
       </li>
     <% end %>
   </ul>
 </div>
 
-<div class="group">
-  <h2>Users <a href="#" onclick="addUser(); return false;" title="Add a new user" id="add-user-link">[+]</a></h2>
-  <form id="add-user" action="/users" method="post">
+<div class="section">
+  <h2>Users <a href="#" onclick="showForm('user'); return false;" title="Add a new user" id="add-user-link">[+]</a></h2>
+  <form id="add-user" action="/users" method="post" class="hidden">
     <div class="row">
       <label for="user_name">Name:</label>
       <input type="text" name="user[name]" id="user_name" />
@@ -40,15 +41,39 @@
       <textarea name="user[key]" id="user_key" rows="3" cols="38"></textarea>
     </div>
     <div class="buttons">
-      <input type="submit" value="Add User" /> or <a href="#" onclick="hideUserForm(); return false;">Cancel</a>
+      <input type="submit" value="Add User" /> or <a href="#" onclick="hideForm('user'); return false;">Cancel</a>
     </div>
   </form>
   <ul id="users">
     <% @users.each do |u| %>
       <li>
         <span class="tag <%= u.admin? ? "admin" : "user" %>"><%= u.admin? ? "admin" : "user" %></span>
-        <%= h(u.name) %>
-        <%= link_to "(edit)", "/users/#{URI.encode(u.name)}" %>
+        <%= h(u.name) %> -
+        <%= link_to "view", "/users/#{URI.encode(u.name)}" %> or
+        <%= delete_link "remove", "/users/#{URI.encode(u.name.strip)}" %>
+      </li>
+    <% end %>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>Groups <a href="#" onclick="showForm('group'); return false;"  title="Add a new group" id="add-group-link">[+]</a></h2>
+  <form id="add-group" action="/groups" method="post" class="hidden">
+    <div class="row">
+      <label for="group_name">Name:</label>
+      <input type="text" name="group[name]" id="group_name" />
+    </div>
+    <div class="buttons">
+      <input type="submit" value="Add Group" /> or <a href="#" onclick="hideForm('group'); return false;">Cancel</a>
+    </div>
+  </form>
+  <ul id="groups">
+    <% @groups.each do |g| %>
+      <li>
+        <span class="tag group">group</span>
+        <%= h(g.to_s) %> -
+        <%= link_to "view", "/groups/#{URI.encode(g.name.strip)}" %> or
+        <%= delete_link "remove", "/groups/#{URI.encode(g.name.strip)}" %>
       </li>
     <% end %>
   </ul>

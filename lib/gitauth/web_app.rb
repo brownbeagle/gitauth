@@ -17,7 +17,7 @@
 #++
 
 require 'sinatra'
-
+require 'digest/sha2'
 module GitAuth
   class WebApp < Sinatra::Base
     
@@ -26,10 +26,11 @@ module GitAuth
     end
     
     configure do
-      set :port,   8998
-      set :views,  File.join(GitAuth::BASE_DIR, "views")
+      set :port, 8998
+      set :views, File.join(GitAuth::BASE_DIR, "views")
       set :public, File.join(GitAuth::BASE_DIR, "public")
       set :static, true
+      set :methodoverride, true
     end
     
     before do
@@ -44,11 +45,28 @@ module GitAuth
         "<a href='#{link}'>#{text}</a>"
       end
       
+      def delete_link(text, url)
+        id = "deleteable-#{Digest::SHA256.hexdigest(url.to_s)[0, 6]}"
+        html =  "<div class='deletable-container' style='display: none; margin: 0; padding: 0;'>"
+        html << "<form method='post' action='#{url}' id='#{id}'>"
+        html << "<input name='_method' type='hidden' value='delete' />"
+        html << "</form></div>"
+        html << "<a href='#' onclick='$(\"##{id}\").submit(); return false;'>#{text}</a>"
+        return html
+      end
+      
+      def auto_link(member)
+        member = member.to_s
+        url = (member[0] == ?@ ? "/groups/#{URI.encode(member[1..-1])}" : "/users/#{URI.encode(member)}")
+        return link_to(member, url)
+      end
+      
     end
     
     get '/' do
-      @repos = GitAuth::Repo.all
-      @users = GitAuth::User.all
+      @repos  = GitAuth::Repo.all
+      @users  = GitAuth::User.all
+      @groups = GitAuth::Group.all
       erb :index
     end
     
@@ -60,6 +78,10 @@ module GitAuth
       if @repo.nil?
         redirect root_with_message("The given repository couldn't be found.")
       else
+        read_perms, write_perms = (@repo.permissions[:read]||[]), (@repo.permissions[:write]||[])
+        @all_access = read_perms & write_perms
+        @read_only  = read_perms - @all_access 
+        @write_only = write_perms - @all_access
         erb :repo
       end
     end
@@ -70,6 +92,15 @@ module GitAuth
         redirect root_with_message("The given user couldn't be found.")
       else
         erb :user
+      end
+    end
+    
+    get '/groups/:name' do
+      @group = GitAuth::Group.get(params[:name])
+      if @group.nil?
+        redirect root_with_message("The given group could not be found.")
+      else
+        erb :group
       end
     end
     
@@ -87,14 +118,41 @@ module GitAuth
     end
     
     post '/repos/:name' do
-      @repo = GitAuth::Repo.get(params[:name])
-      if @repo.nil?
+      repo = GitAuth::Repo.get(params[:name])
+      if repo.nil?
         redirect root_with_message("The given repository couldn't be found.")
       else
+        new_permissions = Hash.new([])
+        [:all, :read, :write].each do |k|
+          if params[:repo][k]
+            perm_lines = params[:repo][k].to_s.split("\n")
+            new_permissions[k] = perm_lines.map do |l|
+              i = GitAuth.get_user_or_group(l.strip)
+              i.nil? ? nil : i.to_s
+            end.compact
+          end
+        end
+        all = new_permissions.delete(:all)
+        new_permissions[:read]  |= all
+        new_permissions[:write] |= all
+        new_permissions.each_value { |v| v.uniq! }
+        repo.permissions = new_permissions
+        GitAuth::Repo.save!
+        redirect "/repos/#{URI.encode(repo.name)}"
       end
     end
     
-    # Create and update users
+    delete '/repos/:name' do
+      repo = GitAuth::Repo.get(params[:name])
+      if repo.nil?
+        redirect root_with_message("The given repository couldn't be found.")
+      else
+        repo.destroy!
+        redirect root_with_message("Repository removed.")
+      end
+    end
+    
+    # Create, delete and update users
     
     post '/users' do
       name  = params[:user][:name]
@@ -103,17 +161,59 @@ module GitAuth
       if GitAuth::User.create(name, admin, key)
         redirect root_with_message("User Added")
       else
-        redirect root_with_message("There was an error adding that user.")
+        redirect root_with_message("There was an error adding the requested user.")
       end
     end
     
-    post '/users/:name' do
-      @user = GitAuth::User.get(params[:name])
-      if @user.nil?
-        redirect root_with_message("The given user couldn't be found.")
+    delete '/users/:name' do
+      user = GitAuth::User.get(params[:name])
+      if user.nil?
+        redirect root_with_message("The specified user couldn't be found.")
       else
+        user.destroy!
+        redirect root_with_message("User removed.")
       end
     end
+    
+    # Create and Update Groups
+    
+    post '/groups' do
+      if GitAuth::Group.create(params[:group][:name])
+        redirect root_with_message("Group added")
+      else
+        redirect root_with_message("There was an error adding the requested group.")
+      end
+    end
+    
+    post '/groups/:name' do
+      group = GitAuth::Group.get(params[:name])
+      if group.nil?
+        redirect root_with_message("The specified group couldn't be found.")
+      else
+        if params[:group][:members]
+          member_lines = params[:group][:members].to_s.split("\n")
+          group.members = member_lines.map do |l|
+            i = GitAuth.get_user_or_group(l.strip)
+            i.nil? ? nil : i.to_s
+          end.compact - [group.to_s]
+          GitAuth::Group.save!
+        end
+        redirect "/groups/#{URI.encode(group.name)}"
+      end
+    end
+    
+    delete '/groups/:name' do
+      group = GitAuth::Group.get(params[:name])
+      if group.nil?
+        redirect root_with_message("The specified group couldn't be found.")
+      else
+        group.destroy!
+        redirect root_with_message("Group removed.")
+      end
+    end
+    
+    
+    # Misc Helpers
     
     def root_with_message(message)
       "/?message=#{URI.encode(message)}"

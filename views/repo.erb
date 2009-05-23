@@ -1,0 +1,56 @@
+<div class="view">
+  <h2>Viewing Repository: <%=h @repo.name %></h2>
+
+  <h3>Members with Read / Write Access:</h3>
+  <ul>
+    <% if @all_access.empty? %>
+      <li class="empty">No users or groups have predefined read and write access</li>
+    <% end %>
+    <% @all_access.each do |member| %>
+      <li><%= auto_link member %>
+    <% end %>
+  </ul>
+  
+  <h3>Members with Write Access:</h3>
+  <ul>
+    <% if @write_only.empty? %>
+      <li class="empty">No users or groups have predefined write-only access</li>
+    <% end %>
+    <% @write_only.each do |member| %>
+      <li><%= auto_link member %>
+    <% end %>
+  </ul>
+  
+  <h3>Members with Read Access:</h3>
+  <ul>
+    <% if @read_only.empty? %>
+      <li class="empty">No users or groups have predefined read-only access</li>
+    <% end %>
+    <% @read_only.each do |member| %>
+      <li><%= auto_link member %>
+    <% end %>
+  </ul>
+  
+  <form action="/repos/<%= URI.encode(@repo.name) %>" method="post">
+    <div class="row">
+      <label for="repo_all"> Read &amp; Write Access:</label>
+      <textarea name="repo[all]" id="repo_all" cols="38" rows="5"><%= @all_access.join("\n") %></textarea>
+    </div>
+    
+    <div class="row">
+      <label for="repo_write"> Write-Only Access:</label>
+      <textarea name="repo[write]" id="repo_write" cols="38" rows="5"><%= @write_only.join("\n") %></textarea>
+    </div>
+    
+    <div class="row">
+      <label for="repo_read"> Read-Only Access:</label>
+      <textarea name="repo[read]" id="repo_read" cols="38" rows="5"><%= @read_only.join("\n") %></textarea>
+    </div>
+    
+    <div class="buttons">
+      <input type="submit" value="Update Permissions" /> or <a href="/">Go Back</a>
+    </div>
+  </form>
+</div>
+  
+</div>
