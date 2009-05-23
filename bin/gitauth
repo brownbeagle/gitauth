@@ -93,6 +93,10 @@ class GitAuthRunner < Thor
       $stderr.puts "Please log in as the correct user and re-run"
       exit! 1
     end
+    if !GitAuth::Repo.has_git?
+      $stderr.puts "'git' was not found in your path - please install it before continuing."
+      exit! 1
+    end
     require 'fileutils'
     folder = File.expand_path("~/.ssh")
     if !File.exist?(folder) || !File.directory?(folder)
