@@ -51,7 +51,7 @@ module GitAuth
         html << "<form method='post' action='#{url}' id='#{id}'>"
         html << "<input name='_method' type='hidden' value='delete' />"
         html << "</form></div>"
-        html << "<a href='#' onclick='$(\"##{id}\").submit(); return false;'>#{text}</a>"
+        html << "<a href='#' onclick='if(confirm(\"Are you sure you want to do that? Deletion can not be reversed.\")) $(\"##{id}\").submit(); return false;'>#{text}</a>"
         return html
       end
       
