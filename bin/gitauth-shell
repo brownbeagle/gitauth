@@ -32,35 +32,11 @@ File.umask(0022)
 user_name = ARGV[0]
 command   = ENV["SSH_ORIGINAL_COMMAND"]
 
-GitAuth::Client.start!(user_name, command) do |c|
-  
-  c.on(:invalid_user) do |c|
-    c.exit_with_error "An invalid user / key was used. Please ensure it is setup with GitAuth"
-  end
-  
-  c.on(:invalid_command) do |c|
-    if c.user.shell_accessible?
-      exec(ENV["SHELL"])
-    else
-      c.exit_with_error "SSH_ORIGINAL_COMMAND is needed, mmmkay?"
-    end
-  end
-  
-  c.on(:invalid_repository) do |c|
-   c.exit_with_error "Ze repository you specified does not exist."
-  end
-  
-  c.on(:bad_command) do |c|
-    c.exit_with_error "A Bad Command Has Failed Ye, Thou Shalt Not Continue."
-  end
+require 'yaml'
+$stderr.puts "User Name = #{ARGV[0]}"
+$stderr.puts "Command   = #{command}"
+$stderr.puts "Env:"
+$stderr.puts ENV.to_hash.to_yaml
 
-  c.on(:access_denied) do |c|
-    c.exit_with_error "These are not the droids you are looking for"
-  end
-
-  c.on(:fatal_error) do |c|
-    c.exit_with_error "Holy crap, we've imploded cap'n!"
-  end
-  
-end
+GitAuth::Client.start!(user_name, command)
 
