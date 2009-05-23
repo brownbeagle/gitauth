@@ -1,5 +1,5 @@
 #--
-#   Copyright (C) 2009 BrownBeagle
+#   Copyright (C) 2009 Brown Beagle Software
 #   Copyright (C) 2008 Darcy Laycock <sutto@sutto.net>
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -23,8 +23,8 @@ require 'ostruct'
 
 module GitAuth
   
-  BASE_DIR      = File.expand_path(File.join(File.dirname(__FILE__), ".."))
-  GITAUTH_DIR   = File.expand_path("~/.gitauth/")
+  BASE_DIR    = File.expand_path(File.join(File.dirname(__FILE__), ".."))
+  GITAUTH_DIR = File.expand_path("~/.gitauth/")
   
   def self.logger
     @logger ||= ::Logger.new(File.join(GITAUTH_DIR, "gitauth.log"))
@@ -45,12 +45,12 @@ module GitAuth
       exit! 1
     end
     dir = File.expand_path(File.join(File.dirname(__FILE__), "gitauth"))
-    %w(saveable_class repo users command client).each do |file|
+    %w(saveable_class repo user command client group).each do |file|
       require File.join(dir, file)
     end
     # Load the users and repositories from a YAML File.
     GitAuth::Repo.load!
-    GitAuth::Users.load
+    GitAuth::User.load!
     GitAuth::Group.load!
   end
   
@@ -63,7 +63,7 @@ module GitAuth
   def self.force_setup!
     @settings = nil
     GitAuth::Repo.all  = nil
-    GitAuth::Users.all = nil
+    GitAuth::User.all = nil
     GitAuth::Group.all = nil
     self.setup!
   end

@@ -1,5 +1,5 @@
 #--
-#   Copyright (C) 2009 BrownBeagle
+#   Copyright (C) 2009 Brown Beagle Software
 #   Copyright (C) 2008 Darcy Laycock <sutto@sutto.net>
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -48,7 +48,7 @@ module GitAuth
     
     get '/' do
       @repos = GitAuth::Repo.all
-      @users = GitAuth::Users.all
+      @users = GitAuth::User.all
       erb :index
     end
     
@@ -65,7 +65,7 @@ module GitAuth
     end
     
     get '/users/:name' do
-      @user = GitAuth::Users.get(params[:name])
+      @user = GitAuth::User.get(params[:name])
       if @user.nil?
         redirect root_with_message("The given user couldn't be found.")
       else
@@ -100,7 +100,7 @@ module GitAuth
       name  = params[:user][:name]
       admin = params[:user][:admin].to_s == "1"
       key   = params[:user][:key]
-      if GitAuth::Users.create(name, admin, key)
+      if GitAuth::User.create(name, admin, key)
         redirect root_with_message("User Added")
       else
         redirect root_with_message("There was an error adding that user.")
@@ -108,7 +108,7 @@ module GitAuth
     end
     
     post '/users/:name' do
-      @user = GitAuth::Users.get(params[:name])
+      @user = GitAuth::User.get(params[:name])
       if @user.nil?
         redirect root_with_message("The given user couldn't be found.")
       else

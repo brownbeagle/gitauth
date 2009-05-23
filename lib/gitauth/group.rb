@@ -1,15 +1,20 @@
 module GitAuth
   class Group < SaveableClass(:groups)
 
-    attr_accessor :name, :users
+    attr_accessor :name, :members
     
-    def intialize(name)
+    def initialize(name)
       @name  = name
       @members = []
     end
     
+    def destroy!
+      self.class.all.reject! { |g| g == self }
+      self.class.save!
+    end
+    
     def add_member(member)
-      @members << member.to_s
+      @members << member.to_s.strip
       @members.uniq!
     end
     
@@ -23,6 +28,13 @@ module GitAuth
     
     def to_s
       "@#{name}"
+    end
+    
+    def self.create(name)
+      name = name.to_s.strip.gsub(/^@/, "")
+      return false if name.empty? || name !~ /^([\w\_\-\.]+)$/
+      self.add_item self.new(name)
+      return true
     end
     
     def self.get(name)

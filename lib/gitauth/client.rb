@@ -27,7 +27,7 @@ module GitAuth
     def initialize(user_name, command)
       GitAuth.logger.debug "Initializing client with command: #{command.inspect} and user name #{user_name.inspect}"
       @callbacks = Hash.new { |h,k| h[k] = [] }
-      @user      = GitAuth::Users.get(user_name.to_s.strip)
+      @user      = GitAuth::User.get(user_name.to_s.strip)
       @command   = command
     end
     

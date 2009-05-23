@@ -28,14 +28,11 @@ module GitAuth
     
     def self.create(name, path = name)
       return false if name.nil? || path.nil?
-      return false unless self.get(name).nil? && name =~ NAME_RE && path =~ NAME_RE 
+      return false if self.get(name) || self.all.any? { |r| r.path == path } || name !~ NAME_RE || path !~ NAME_RE
       repository = self.new(name, path)
-      if repository.create_repo!
-        self.add_item(repository)
-        return true
-      else
-        return false
-      end
+      return false unless repository.create_repo!
+      self.add_item(repository)
+      return true
     end
     
     attr_accessor :name, :path
@@ -43,6 +40,10 @@ module GitAuth
     def initialize(name, path, auto_create = false)
       @name, @path = name, path
       @permissions = {}
+    end
+    
+    def ==(other)
+      other.is_a?(Repo) && other.name == name && other.path == 
     end
     
     def writeable_by(user_or_group)
@@ -85,6 +86,12 @@ module GitAuth
         end
         return !!(output =~ /Initialized empty Git repository/)
       end
+    end
+    
+    def destroy!
+      FileUtils.rm_rf(self.real_path) if File.exist?(self.real_path)
+      self.all.reject! { |r| r == self }
+      self.class.save!
     end
     
   end

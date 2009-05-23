@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 #--
-#   Copyright (C) 2009 BrownBeagle
+#   Copyright (C) 2009 Brown Beagle Software
 #   Copyright (C) 2008 Darcy Laycock <sutto@sutto.net>
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -26,6 +26,7 @@ require File.join(File.dirname(__FILE__), "..", "lib", "gitauth")
 
 class GitAuthRunner < Thor
   
+  # Adding users, groups and repos
   
   desc "addrepo REPO-NAME [PATH-PART]", "Adds a new repository"
   def addrepo(name, path = name)
@@ -43,7 +44,7 @@ class GitAuthRunner < Thor
   def adduser(name, key_path)
     GitAuth.setup!
     admin = !!(options && options[:admin])
-    if GitAuth::Users.create(name, admin, File.read(key_path).strip)
+    if GitAuth::User.create(name, admin, File.read(key_path).strip)
       $stdout.puts "User added"
     else
       $stderr.puts "There was an error adding the given user"
@@ -51,24 +52,18 @@ class GitAuthRunner < Thor
     end
   end
   
-  desc "repos", "Lists all the current repos"
-  def repos
+  desc "addgroup NAME", "Adds a group with the specified name"
+  def addgroup(name)
     GitAuth.setup!
-    $stdout.puts "repositories:"
-    GitAuth::Repo.all.each do |repo|
-      $stdout.puts " - #{repo.name}"
+    if GitAuth::Group.create(name)
+      $stdout.puts "The group was added"
+    else
+      $stderr.puts "There was an error creating the aforementioned group"
+      exit! 1
     end
   end
   
-  desc "users", "Lists all users in the system"
-  def users
-    GitAuth.setup!
-    $stdout.puts "users:"
-    GitAuth::Users.all.each do |user|
-      $stdout.puts "- #{user.name}"
-    end
-  end
-  
+  # Misc. operations
   
   desc "permissions REPO USERORGROUP [PERMISION=all,read,write]", "Adds Permissions for a user or group to a repository"
   def permissions(repo, user_or_group, permissions = "all")
@@ -138,7 +133,7 @@ class GitAuthRunner < Thor
       end
       if !public_key_path.nil? && File.exist?(public_key_path)
         GitAuth.setup!
-        created = GitAuth::Users.create("admin", true, File.read(public_key_path).strip)
+        created = GitAuth::User.create("admin", true, File.read(public_key_path).strip)
         if created
           $stdout.puts "Admin User Created."
         else
@@ -152,6 +147,40 @@ class GitAuthRunner < Thor
       exit! 1
   end
   
+  # Viewing Users etc
+  
+  desc "repos", "Lists all the current repos handled by gitauth"
+  def repos
+    GitAuth.setup!
+    $stdout.puts "Repositories:"
+    GitAuth::Repo.all.each do |repo|
+      line = " - #{repo.name}"
+      line << " (#{repo.path})" if repo.path != repo.name
+      $stdout.puts line
+    end
+  end
+  
+  desc "users", "Lists all users handled by gitauth"
+  def users
+    GitAuth.setup!
+    $stdout.puts "Users:"
+    GitAuth::User.all.each do |user|
+      line = "- #{user}"
+      line << " (admin)" if user.admin?
+      $stdout.puts line
+    end
+  end
+  
+  desc "groups", "Lists all groups handled by gitauth"
+  def groups
+    GitAuth.setup!
+    $stdout.puts "Groups:"
+    GitAuth::Group.all.each do |group|
+      $stdout.puts "- #{group} - #{group.members.empty? ? "no members" : group.members.join(", ")}"
+    end
+  end
+  
+  desc "webapp", "starts serving the GitAuth web-app on Port 8998"
   def webapp
     GitAuth.serve_web!
   end

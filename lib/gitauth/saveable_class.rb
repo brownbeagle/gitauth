@@ -29,7 +29,7 @@ module GitAuth
       end
       
       def self.add_item(item)
-        self.load!
+        self.load! if self.all.nil?
         self.all << item
         self.save!
       end
