@@ -186,7 +186,47 @@ class GitAuthRunner < Thor
   
   desc "webapp", "starts serving the GitAuth web-app on Port 8998"
   def webapp
+    s = GitAuth.settings
+    if s.web_username.to_s.empty? || s.web_password_hash.to_s.empty?
+      $stdout.puts "To use the web interface you must first setup some credentials:"
+      $stdout.print "What username would you like to use? (default is 'gitauth'): "
+      username = Readline.readline.strip
+      username = "gitauth" if username.empty?
+      $stdout.print "What password would you like to use?: "
+      password = read_password
+      while password.empty?
+        $stdout.print "Please try again, What password would you like to use?: "
+        password = read_password
+      end
+      print "Please enter your password again: "
+      confirmation = read_password
+      while confirmation != password
+        print "Wrong password, please confirm again: "
+        confirmation = read_password
+      end
+      require 'digest/sha2'
+      settings = YAML.load_file(File.join(GitAuth::GITAUTH_DIR, "settings.yml"))
+      settings.merge!({
+        "web_username"      => username,
+        "web_password_hash" => Digest::SHA256.hexdigest(password)
+      })
+      File.open(File.join(GitAuth::GITAUTH_DIR, "settings.yml"), "w+") { |f| f.write settings.to_yaml }
+      puts "Username and Password saved."
+      GitAuth.reload_settings!
+    end
     GitAuth.serve_web!
+  rescue Interrupt
+    exit! 1
+  end
+  
+  protected
+  
+  def read_password
+    system "stty -echo" 
+    line = Readline.readline.strip
+    system "stty echo"
+    print "\n"
+    return line
   end
   
 end

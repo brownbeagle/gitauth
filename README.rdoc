@@ -48,9 +48,19 @@ Would initialize an admin user with the given public key.
 Note that from now on, all gitauth keys should be run either logged in as
 git (via the admin user and ssh) or by being prefixed with asgit or "sudo -H -u git"
 
+=== Web Interface
+
+To start the web interface, just run:
+
+  gitauth webapp
+  
+The first time you boot the web app, you will be prompted
+to enter a username and a password. Please do so
+and then surf to http://your-server-ip:8998/
+
 === Adding Users
 
-Whenever you want to add a user, it's ass imple as:
+Whenever you want to add a user, it's as simple as:
 
   gitauth adduser user-name path-to-public-key
   

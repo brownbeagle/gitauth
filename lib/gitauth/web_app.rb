@@ -22,7 +22,7 @@ module GitAuth
   class WebApp < Sinatra::Base
     
     use Rack::Auth::Basic do |username, password|
-      [username, password] == ["gitauth", "gitauth"]
+      [username, Digest::SHA256.hexdigest(password)] == [GitAuth.settings.web_username, GitAuth.settings.web_password_hash]
     end
     
     configure do

@@ -34,6 +34,10 @@ module GitAuth
     @settings ||= OpenStruct.new(YAML.load_file(File.join(GITAUTH_DIR, "settings.yml")))
   end
   
+  def self.reload_settings!
+    @settings = nil
+  end
+  
   def self.get_user_or_group(name)
     return nil if name.to_s.strip.empty?
     return (name =~ /^@/ ? Group : User).get(name)
