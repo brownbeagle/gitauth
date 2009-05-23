@@ -70,22 +70,21 @@ class GitAuthRunner < Thor
   end
   
   
-  desc "permissions REPO USER [PERMISION=all,read,write]", "Adds Permissions for a user to a repository"
-  def permissions(repo, user, permissions = "all")
+  desc "permissions REPO USERORGROUP [PERMISION=all,read,write]", "Adds Permissions for a user or group to a repository"
+  def permissions(repo, user_or_group, permissions = "all")
     GitAuth.setup!
     unless %w(read write all).include?(permissions)
       $stderr.puts "Invalid permissions: #{permissions}"
       exit! 1
     end
     repo = GitAuth::Repo.get(repo)
-    user = GitAuth::Users.get(user)
-    if repo.nil? || user.nil?
+    uog  = GitAuth.get_user_or_group(user_or_group)
+    if repo.nil? || uog.nil?
       $stderr.puts "Invalid repository or user, please check the name"
       exit! 1
     end
-    repo.writeable_by(user) if %w(all write).include?(permissions)
-    repo.readable_by(user) if %w(all read).include?(permissions)
-    GitAuth::Users.save!
+    repo.writeable_by(uog) if %w(all write).include?(permissions)
+    repo.readable_by(uog)  if %w(all read).include?(permissions)
     GitAuth::Repo.save!
     $stdout.puts "Permissions Added"
   end

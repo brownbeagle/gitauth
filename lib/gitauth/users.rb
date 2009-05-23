@@ -31,9 +31,7 @@ module GitAuth
       return false unless name =~ /^([\w\_\-\.]+)$/ && !!admin == admin
       user = self.new(name, admin)
       if user.write_ssh_key!(key)
-        self.load!
-        self.all << user
-        self.save!
+        self.add_item(user)
         return true
       else
         return false

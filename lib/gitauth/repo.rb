@@ -31,9 +31,7 @@ module GitAuth
       return false unless self.get(name).nil? && name =~ NAME_RE && path =~ NAME_RE 
       repository = self.new(name, path)
       if repository.create_repo!
-        self.load!
-        self.all << repository
-        self.save!
+        self.add_item(repository)
         return true
       else
         return false
@@ -49,22 +47,28 @@ module GitAuth
     
     def writeable_by(user_or_group)
       @permissions[:write] ||= []
-      @permissions[:write] << user.to_s
+      @permissions[:write] << user_or_group.to_s
       @permissions[:write].uniq!
     end
     
     def readable_by(user_or_group)
       @permissions[:read] ||= []
-      @permissions[:read] << user.to_s
+      @permissions[:read] << user_or_group.to_s
       @permissions[:read].uniq!
     end
     
     def writeable_by?(user_or_group)
-      (@permissions[:write] || []).include? user.to_s
+      !(@permissions[:write] || []).detect do |writer|
+        writer = GitAuth.get_user_or_group(writer)
+        writer == user_or_group || (writer.is_a?(Group) && writer.member?(user_or_group))
+      end.nil?
     end
     
     def readable_by?(user_or_group)
-      (@permissions[:read] || []).include? user.to_s
+      !(@permissions[:read] || []).detect do |reader|
+        reader = GitAuth.get_user_or_group(reader)
+        reader == user_or_group || (reader.is_a?(Group) && reader.member?(user_or_group))
+      end.nil?
     end
     
     def real_path

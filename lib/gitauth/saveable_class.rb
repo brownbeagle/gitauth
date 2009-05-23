@@ -27,6 +27,12 @@ module GitAuth
           f.write self.all.to_yaml
         end
       end
+      
+      def self.add_item(item)
+        self.load!
+        self.all << item
+        self.save!
+      end
     
     END
     klass.class_eval(saveable_class_def)

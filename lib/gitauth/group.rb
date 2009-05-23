@@ -5,16 +5,20 @@ module GitAuth
     
     def intialize(name)
       @name  = name
-      @users = []
+      @members = []
     end
     
-    def add_member(user)
-      @users << user.name if user.is_a?(GitAuth::Users)
-      @users.uniq!
+    def add_member(member)
+      @members << member.to_s
+      @members.uniq!
     end
     
-    def member?(user)
-      @users.include?(user.name) 
+    def ==(group)
+      group.is_a?(Group) && group.name == self.name
+    end
+    
+    def member?(user_or_group)
+      @members.include?(user_or_group.to_s) 
     end
     
     def to_s
