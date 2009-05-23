@@ -154,8 +154,7 @@ class GitAuthRunner < Thor
   end
   
   def webapp
-    GitAuth.setup!
-    GitAuth::WebApp.run!
+    GitAuth.serve_web!
   end
   
 end

@@ -62,6 +62,7 @@ module GitAuth
     # Clean up, mmkay?
     def process!
       raise BadCommandError if @command.include?("\n")
+      raise BadCommandError if @command !~ /^git/i
       @verb, @argument = split_command
       raise BadCommandError if @argument.nil? || @argument.is_a?(Array) 
       # Check if it's read / write

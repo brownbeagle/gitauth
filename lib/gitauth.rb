@@ -40,12 +40,18 @@ module GitAuth
       exit! 1
     end
     dir = File.expand_path(File.join(File.dirname(__FILE__), "gitauth"))
-    %w(repo users command client web_app).each do |file|
+    %w(repo users command client).each do |file|
       require File.join(dir, file)
     end
     # Load the users and repositories from a YAML File.
     GitAuth::Repo.load!
     GitAuth::Users.load!
+  end
+  
+  def self.serve_web!
+    self.setup!
+    require File.join(File.expand_path(File.join(File.dirname(__FILE__), "gitauth")), "web_app")
+    GitAuth::WebApp.run!
   end
   
   def self.force_setup!

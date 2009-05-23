@@ -48,7 +48,7 @@ module GitAuth
         end
       else
         command   = Command.parse!(@command)
-        repo      = Repo.get(extract_repo_name(command))
+        repo      = command.bad? ? nil : Repo.get(extract_repo_name(command))
         if command.bad?
           if user.shell_accessible?
             exec(@command)

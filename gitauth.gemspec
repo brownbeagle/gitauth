@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.email = %q{sutto@sutto.net}
   s.executables = ["gitauth", "gitauth-shell"]
   s.extra_rdoc_files = ["README.rdoc", "LICENSE"]
-  s.files = ["README.rdoc", "LICENSE", "bin/gitauth", "bin/gitauth-shell", "lib/gitauth.rb", "lib/gitauth/client.rb", "lib/gitauth/command.rb", "lib/gitauth/repo.rb", "lib/gitauth/users.rb"]
+  s.files = ["bin/gitauth", "bin/gitauth-shell", "lib/gitauth/client.rb", "lib/gitauth/command.rb", "lib/gitauth/repo.rb", "lib/gitauth/users.rb", "lib/gitauth/web_app.rb", "lib/gitauth.rb", "LICENSE", "public/gitauth.css", "public/gitauth.js", "public/jquery.js", "README.rdoc", "views/index.erb", "views/layout.erb", "views/repo.erb", "views/user.erb"]
   s.has_rdoc = false
   s.homepage = "http://github.com/brownbeagle/gitauth"
   s.rdoc_options = ["--inline-source", "--charset=UTF-8"]
@@ -22,10 +22,13 @@ Gem::Specification.new do |s|
     s.specification_version = 2
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<thor>, [">= 0.9.7"])
+      s.add_runtime_dependency(%q<sinatra>, [">= 0.9"])
     else
       s.add_dependency(%q<thor>, [">= 0.9.7"])
+      s.add_dependency(%q<sinatra>, [">= 0.9"])
     end
   else
     s.add_dependency(%q<thor>, [">= 0.9.7"])
+    s.add_dependency(%q<sinatra>, [">= 0.9"])
   end
 end
