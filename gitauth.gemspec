@@ -9,7 +9,8 @@ Gem::Specification.new do |s|
   s.email = %q{sutto@sutto.net}
   s.executables = ["gitauth", "gitauth-shell"]
   s.extra_rdoc_files = ["README.rdoc", "LICENSE"]
-  s.files = ["bin/gitauth", "bin/gitauth-shell", "lib/gitauth/client.rb", "lib/gitauth/command.rb", "lib/gitauth/repo.rb", "lib/gitauth/users.rb", "lib/gitauth/web_app.rb", "lib/gitauth.rb", "LICENSE", "public/gitauth.css", "public/gitauth.js", "public/jquery.js", "README.rdoc", "views/index.erb", "views/layout.erb", "views/repo.erb", "views/user.erb"]
+  s.files = ["bin/gitauth", "bin/gitauth-shell", "lib/gitauth/client.rb", "lib/gitauth/command.rb", "lib/gitauth/group.rb", "lib/gitauth/repo.rb", "lib/gitauth/saveable_class.rb", "lib/gitauth/user.rb", "lib/gitauth/web_app.rb", "lib/gitauth.rb", "LICENSE", "public/gitauth.css", "public/gitauth.js", "public/jquery.js", "README.rdoc", "views/group.erb", "views/index.erb", "views/layout.erb", "views/repo.erb", "views/user.erb"]
+  
   s.has_rdoc = false
   s.homepage = "http://github.com/brownbeagle/gitauth"
   s.rdoc_options = ["--inline-source", "--charset=UTF-8"]
