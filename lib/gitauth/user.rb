@@ -54,13 +54,31 @@ module GitAuth
       if cleaned_key.nil?
         return false
       else
-        gitauth_path = GitAuth.settings.shell_executable
-        output = "command=\"#{gitauth_path} #{@name}\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding#{shell_accessible? ? "" : ",no-pty"} #{cleaned_key}"
+        output = "#{command_prefix} #{cleaned_key}"
         File.open(GitAuth.settings.authorized_keys_file, "a+") do |file|
           file.puts output
         end
         return true
       end
+    end
+    
+    def command_prefix
+      "command=\"#{GitAuth.settings.shell_executable} #{@name}\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding#{shell_accessible? ? "" : ",no-pty"}"
+    end
+    
+    def destroy!
+      GitAuth::Repo.all.each  { |r| r.remove_permissions_for(self) }
+      GitAuth::Group.all.each { |g| g.remove_member(self) }
+      # Remove the public key from the authorized_keys file.
+      auth_keys_path = GitAuth.settings.authorized_keys_file
+      contents = File.read(auth_keys_path)
+      contents.gsub!(/#{command_prefix} ssh-\w+ [a-zA-Z0-9\/\+]+==\r?\n?/m, "")
+      File.open(auth_keys_path, "w+") { |f| f.write contents }
+      self.class.all.reject { |u| u == self }
+      # Finally, save everything
+      self.class.save!
+      GitAuth::Repo.save!
+      GitAuth::Group.save!
     end
     
     def admin?

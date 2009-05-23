@@ -9,13 +9,19 @@ module GitAuth
     end
     
     def destroy!
+      GitAuth::Repo.all.each { |r| r.remove_permissions_for(self) }
       self.class.all.reject! { |g| g == self }
+      GitAuth::Repo.save!
       self.class.save!
     end
     
     def add_member(member)
-      @members << member.to_s.strip
+      @members << member.to_s
       @members.uniq!
+    end
+    
+    def remove_member(member)
+      @members.reject! { |m| m == member.to_s }
     end
     
     def ==(group)

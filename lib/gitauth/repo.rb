@@ -72,6 +72,12 @@ module GitAuth
       end.nil?
     end
     
+    def remove_permissions_for(user_or_group)
+      self.permissions.each_value do |val|
+        val.reject! { |m| m == user_or_group.to_s }
+      end
+    end
+    
     def real_path
       File.join(GitAuth.settings.base_path, @path)
     end
