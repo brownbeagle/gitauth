@@ -93,7 +93,7 @@ class GitAuthRunner < Thor
       $stderr.puts "Please log in as the correct user and re-run"
       exit! 1
     end
-    if !GitAuth::Repo.has_git?
+    if !GitAuth.has_git?
       $stderr.puts "'git' was not found in your path - please install it before continuing."
       exit! 1
     end

@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = %q{gitauth}
-  s.version = "0.0.2"
+  s.version = "0.0.3"
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Darcy Laycock", "Alex Pooley"]
   s.date = %q{2009-04-05}
@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.executables = ["gitauth", "gitauth-shell"]
   s.extra_rdoc_files = ["README.rdoc", "LICENSE"]
   s.files = ["bin/gitauth", "bin/gitauth-shell", "lib/gitauth/client.rb", "lib/gitauth/command.rb", "lib/gitauth/group.rb", "lib/gitauth/repo.rb", "lib/gitauth/saveable_class.rb", "lib/gitauth/user.rb", "lib/gitauth/web_app.rb", "lib/gitauth.rb", "LICENSE", "public/gitauth.css", "public/gitauth.js", "public/jquery.js", "README.rdoc", "views/group.erb", "views/index.erb", "views/layout.erb", "views/repo.erb", "views/user.erb"]
+  
   
   s.has_rdoc = false
   s.homepage = "http://github.com/brownbeagle/gitauth"

@@ -83,7 +83,7 @@ module GitAuth
     end
     
     def create_repo!
-      return false if !self.class.has_git?
+      return false if !GitAuth.has_git?
       path = self.real_path
       unless File.exist?(path) && File.directory?(path)
         FileUtils.mkdir_p(path)
@@ -99,10 +99,6 @@ module GitAuth
       FileUtils.rm_rf(self.real_path) if File.exist?(self.real_path)
       self.class.all.reject! { |r| r == self }
       self.class.save!
-    end
-    
-    def self.has_git?
-      !`which git`.strip.empty?
     end
     
   end

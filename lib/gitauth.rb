@@ -43,6 +43,10 @@ module GitAuth
     return (name =~ /^@/ ? Group : User).get(name)
   end
   
+  def self.has_git?
+    !`which git`.strip.empty?
+  end
+  
   def self.setup!
     unless File.exist?(GITAUTH_DIR) && File.directory?(GITAUTH_DIR)
       $stderr.puts "GitAuth not been setup, please run: gitauth install"
