@@ -34,7 +34,7 @@ module GitAuth
     # Standard Commands
     READ_COMMANDS  = ["git-upload-pack", "git upload-pack"]
     WRITE_COMMANDS = ["git-receive-pack", "git receive-pack"]
-    PATH_REGEXP    = /^'([\w\_\-\.\+\/]+\/)?([\w\_\-\.\+]+(\.git)?)'$/i.freeze
+    PATH_REGEXP    = /^'([\w\_\-\~\.\+\/]+\/)?([\w\_\-\.\+]+(\.git)?)'$/i.freeze
     
     attr_reader :path, :verb, :command
     
