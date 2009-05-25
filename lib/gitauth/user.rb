@@ -111,7 +111,7 @@ module GitAuth
     end
     
     def self.clean_ssh_key(key)
-      if key =~ /^(ssh-\w+ [a-zA-Z0-9\/\+]+==) .*$/
+      if key =~ /^(ssh-\w+ [a-zA-Z0-9\/\+]+==).*$/
         return $1
       else
         return nil

@@ -35,6 +35,7 @@
     <div class="row">
       <label for="repo_all"> Read &amp; Write Access:</label>
       <textarea name="repo[all]" id="repo_all" cols="38" rows="5"><%= @all_access.join("\n") %></textarea>
+      <p class="hint">One user / group per line, groups starting with @'s</p>
     </div>
     
     <div class="row">
