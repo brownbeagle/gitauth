@@ -117,7 +117,7 @@ module GitAuth
       name = params[:repo][:name]
       path = params[:repo][:path]
       path = name if path.to_s.strip.empty?
-      if GitAuth::Repo.create(name, path)
+      if repo = GitAuth::Repo.create(name, path)
         redirect root_with_message("Repository successfully added")
       else
         redirect root_with_message("There was an error adding the repository.")

@@ -7,13 +7,13 @@ At the moment configuration / adding users is done via a single command - +gitau
 === License
 
 GitAuth is licensed under AGPL, with parts of the code being derived
-from Gitorius - http://gitorious.org/
+from Gitorius - http://gitorious.org
 
 === Installing GitAuth
 
 Getting started is relatively simple. First of, you'll need to log onto the remote server / your git host. Next, you'll need to install the gem:
 
-  sudo gem install brownbeagle-gitauth --source=https://gems.github.com/
+  sudo gem install brownbeagle-gitauth --source http://gems.github.com/
   
 Once that's done, the +gitauth+ and +gitauth-shell+ commands should be in your path.
 Next, you'll want to (in most cases anyway) use a specific +git+ user to host repositories.

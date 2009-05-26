@@ -101,5 +101,16 @@ module GitAuth
       self.class.save!
     end
     
+    def execute_post_create_hook!
+      script = File.expand_path("~/.gitauth/post-create")
+      if File.exist?(scxript) && File.executable?(script)
+        system(script, @name, @path)
+        return $?.success?
+      else
+        # If there isn't a file, run it ourselves.
+        return true
+      end
+    end
+    
   end
 end
