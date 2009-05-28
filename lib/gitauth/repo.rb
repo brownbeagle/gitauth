@@ -89,7 +89,7 @@ module GitAuth
         FileUtils.mkdir_p(path)
         output = ""
         Dir.chdir(path) do
-          IO.popen("git init --bare") { |f| output << f.read }
+          IO.popen("git --bare init") { |f| output << f.read }
         end
         return !!(output =~ /Initialized empty Git repository/)
       end
@@ -103,7 +103,7 @@ module GitAuth
     
     def execute_post_create_hook!
       script = File.expand_path("~/.gitauth/post-create")
-      if File.exist?(scxript) && File.executable?(script)
+      if File.exist?(script) && File.executable?(script)
         system(script, @name, @path)
         return $?.success?
       else

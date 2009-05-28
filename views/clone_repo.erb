@@ -1,0 +1,22 @@
+<% repo_url = "git@#{request.host}:#{h params[:repo_name]}.git" %>
+<div id="repository-details">
+  <h3>Congratulations! Your repository was added!</h3>
+  <p>
+    If you have an existing local git repository you wish to push, try...
+  </p>
+  <code>  cd your-repo
+  git remote add origin <%= repo_url %>
+  git push origin master</code>
+  <p>
+    Otherwise, to initialize an empty repository:
+  </p>
+  <code>  mkdir your-repo
+  cd your-repo
+  git init
+  touch .gitignore
+  git add .gitignore
+  git commit -m "Added blank .gitignore to initialize repository"
+  git remote add origin <%= repo_url %>
+  git push origin master</code>
+  <p>And you should be good to go! <a href="#" onclick="$('#repository-details').slideUp(); return false;">(close instructions)</a></p>
+</div>

@@ -1,3 +1,7 @@
+<% if params[:repo_name] %>
+  <%= erb :clone_repo, :layout => false %>
+<% end %>
+
 <div class="section">
   <h2>Repositories <a href="#" onclick="showForm('repo'); return false;"  title="Add a new repository" id="add-repo-link">[+]</a></h2>
   <form id="add-repo" action="/repos" method="post" class="hidden">
