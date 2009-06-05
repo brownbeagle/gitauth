@@ -26,6 +26,9 @@ require File.join(File.dirname(__FILE__), "..", "lib", "gitauth")
 
 class GitAuthRunner < Thor
   
+  map "--usage" => :help
+  map "--help" => :help
+  
   # Adding users, groups and repos
   
   desc "addrepo REPO-NAME [PATH-PART]", "Adds a new repository"
@@ -217,6 +220,10 @@ class GitAuthRunner < Thor
     GitAuth.serve_web!
   rescue Interrupt
     exit! 1
+  end
+  
+  def usage
+    
   end
   
   protected

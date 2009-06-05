@@ -1,8 +1,8 @@
 Gem::Specification.new do |s|
   s.name = %q{gitauth}
-  s.version = "0.0.3"
+  s.version = "0.0.3.1"
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Darcy Laycock", "Alex Pooley"]
+  s.authors = ["Darcy Laycock", "Alex Pooley", "Matt Didcoe"]
   s.date = %q{2009-04-05}
   s.default_executable = %q{gitauth}
   s.description = %q{Git Authentication Server}
