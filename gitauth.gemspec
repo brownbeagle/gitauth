@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = %q{gitauth}
-  s.version = "0.0.3.1"
+  s.version = "0.0.3.2"
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Darcy Laycock", "Alex Pooley", "Matt Didcoe"]
   s.date = %q{2009-04-05}
