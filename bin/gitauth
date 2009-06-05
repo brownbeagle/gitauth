@@ -26,8 +26,9 @@ require File.join(File.dirname(__FILE__), "..", "lib", "gitauth")
 
 class GitAuthRunner < Thor
   
-  map "--usage" => :help
+  map "-h" => :help
   map "--help" => :help
+  map "--usage" => :usage
   
   # Adding users, groups and repos
   
@@ -223,7 +224,13 @@ class GitAuthRunner < Thor
   end
   
   def usage
-    
+    counter = 1
+    file = File.new("USAGE", "r")
+    while (line = file.gets)
+      puts line
+      counter = counter + 1
+    end
+    file.close
   end
   
   protected
