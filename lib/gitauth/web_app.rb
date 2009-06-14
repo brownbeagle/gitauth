@@ -119,7 +119,7 @@ module GitAuth
       path = name if path.to_s.strip.empty?
       if repo = GitAuth::Repo.create(name, path)
         if repo.execute_post_create_hook!
-          redirect "/repo_name=#{URI.encode(name)}"
+          redirect "/?repo_name=#{URI.encode(name)}"
         else
           redirect root_with_message("Repository added but the post-create hook exited unsuccessfully.")
         end
