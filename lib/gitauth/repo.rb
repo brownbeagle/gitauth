@@ -32,7 +32,7 @@ module GitAuth
       repository = self.new(name, path)
       return false unless repository.create_repo!
       self.add_item(repository)
-      return true
+      return repository
     end
     
     attr_accessor :name, :path, :permissions
