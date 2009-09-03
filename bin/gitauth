@@ -209,16 +209,16 @@ class GitAuthRunner < Thor
         confirmation = read_password
       end
       require 'digest/sha2'
-      settings = YAML.load_file(File.join(GitAuth::GITAUTH_DIR, "settings.yml"))
+      settings = YAML.load_file(GitAuth::GITAUTH_DIR.join("settings.yml"))
       settings.merge!({
         "web_username"      => username,
         "web_password_hash" => Digest::SHA256.hexdigest(password)
       })
-      File.open(File.join(GitAuth::GITAUTH_DIR, "settings.yml"), "w+") { |f| f.write settings.to_yaml }
+      File.open(GitAuth::GITAUTH_DIR.join("settings.yml"), "w+") { |f| f.write settings.to_yaml }
       puts "Username and Password saved."
-      GitAuth.reload_settings!
+      GitAuth.reload_settings
     end
-    GitAuth.serve_web!
+    GitAuth.serve_web
   rescue Interrupt
     exit! 1
   end

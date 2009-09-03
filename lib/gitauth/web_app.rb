@@ -33,9 +33,7 @@ module GitAuth
       set :methodoverride, true
     end
     
-    before do
-      GitAuth.force_setup!
-    end
+    before { GitAuth.force_setup }
     
     helpers do
       include Rack::Utils

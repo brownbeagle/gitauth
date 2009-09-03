@@ -25,7 +25,7 @@ module GitAuth
     
     saveable_class_def = <<-END
     
-      #{path_name} = File.join(GitAuth::GITAUTH_DIR, #{yaml_file_name.inspect})
+      #{path_name} = GitAuth::GITAUTH_DIR.join(#{yaml_file_name.inspect})
     
       def self.all
         @@all_#{kind} ||= nil

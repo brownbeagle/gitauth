@@ -277,7 +277,6 @@ br.clear { clear: both; }
   color: #C55E25;
 }
 
-
 #repository-details code {
   display: block;
   white-space: pre;
@@ -285,5 +284,4 @@ br.clear { clear: both; }
   font-family: Consolas, Lucida Console, Monaco, monospace;
   background: #F4F4F4;
   margin: 0.25em 0;
-  
 }
