@@ -1,6 +1,6 @@
 #--
 #   Copyright (C) 2009 Brown Beagle Software
-#   Copyright (C) 2008 Darcy Laycock <sutto@sutto.net>
+#   Copyright (C) 2009 Darcy Laycock <sutto@sutto.net>
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU Affero General Public License as published by

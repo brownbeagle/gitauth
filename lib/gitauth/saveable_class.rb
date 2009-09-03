@@ -1,6 +1,6 @@
 #--
 #   Copyright (C) 2009 Brown Beagle Software
-#   Copyright (C) 2008 Darcy Laycock <sutto@sutto.net>
+#   Copyright (C) 2009 Darcy Laycock <sutto@sutto.net>
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU Affero General Public License as published by
@@ -26,31 +26,35 @@ module GitAuth
     saveable_class_def = <<-END
     
       #{path_name} = GitAuth::GITAUTH_DIR.join(#{yaml_file_name.inspect})
-    
-      def self.all
-        @@all_#{kind} ||= nil
-      end
-      
-      def self.all=(value)
-        @@all_#{kind} = value
-      end
-      
-      def self.load!
-        self.all = YAML.load_file(#{path_name}) rescue nil if File.exist?(#{path_name})
-        self.all = [] unless self.all.is_a?(Array)
-      end
 
-      def self.save!
-        load! if self.all.nil?
-        File.open(#{path_name}, "w+") do |f|
-          f.write self.all.to_yaml
+      class << self
+    
+        def all
+          @@all_#{kind} ||= nil
         end
-      end
       
-      def self.add_item(item)
-        self.load! if self.all.nil?
-        self.all << item
-        self.save!
+        def all=(value)
+          @@all_#{kind} = value
+        end
+      
+        def load!
+          self.all = YAML.load_file(#{path_name}) rescue nil if File.exist?(#{path_name})
+          self.all = [] unless self.all.is_a?(Array)
+        end
+
+        def save!
+          load! if self.all.nil?
+          File.open(#{path_name}, "w+") do |f|
+            f.write self.all.to_yaml
+          end
+        end
+      
+        def .add_item(item)
+          self.load! if self.all.nil?
+          self.all << item
+          self.save!
+        end
+    
       end
     
     END

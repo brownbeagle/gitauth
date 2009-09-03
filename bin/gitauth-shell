@@ -2,7 +2,7 @@
 
 #--
 #   Copyright (C) 2009 Brown Beagle Software
-#   Copyright (C) 2008 Darcy Laycock <sutto@sutto.net>
+#   Copyright (C) 2009 Darcy Laycock <sutto@sutto.net>
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU Affero General Public License as published by
@@ -29,8 +29,5 @@ GitAuth.setup!
 # Gitorious does it so I should too!
 File.umask(0022)
 
-user_name = ARGV[0]
-command   = ENV["SSH_ORIGINAL_COMMAND"]
-
-GitAuth::Client.start!(user_name, command)
+GitAuth::Client.start!(ARGV[0], ENV["SSH_ORIGINAL_COMMAND"])
 
