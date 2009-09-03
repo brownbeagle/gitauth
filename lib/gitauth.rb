@@ -29,6 +29,16 @@ module GitAuth
   
   class << self
     
+    def require_vendored(lib)
+      vendored_path = BASE_DIR.join("vendor", lib, "lib", "#{lib}.rb")
+      if File.exist?(vendored_path)
+        require vendored_path
+      else
+        require 'rubygems' unless defined?(Gem)
+        require lib
+      end
+    end
+    
     def logger
       @logger ||= ::Logger.new(GITAUTH_DIR.join("gitauth.log"))
     end

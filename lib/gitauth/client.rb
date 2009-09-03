@@ -47,7 +47,7 @@ module GitAuth
           exit_with_error "SSH_ORIGINAL_COMMAND is needed, mmmkay?"
         end
       else
-        command   = Command.parse!(@command)
+        command   = Command.parse(@command)
         repo      = command.bad? ? nil : Repo.get(extract_repo_name(command))
         if command.bad?
           if user.shell_accessible?

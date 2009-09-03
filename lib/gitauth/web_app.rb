@@ -16,7 +16,10 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'sinatra'
+# Preload Rack and sinatra.
+GitAuth.require_vendored 'rack'
+GitAuth.require_vendored 'sinatra'
+
 require 'digest/sha2'
 module GitAuth
   class WebApp < Sinatra::Base

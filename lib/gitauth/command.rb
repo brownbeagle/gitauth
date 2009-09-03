@@ -29,7 +29,6 @@
 
 module GitAuth
   class Command
-    class BadCommandError < StandardError; end
     
     # Standard Commands
     READ_COMMANDS  = ["git-upload-pack", "git upload-pack"]
@@ -47,7 +46,7 @@ module GitAuth
     end
     
     def bad?
-      !!@bad_command
+      @bad_command
     end
     
     def write?
@@ -58,33 +57,30 @@ module GitAuth
       !bad? && !write?
     end
     
-    # These exceptions are FUGLY.
-    # Clean up, mmkay?
-    def process!
-      raise BadCommandError if @command.include?("\n") || @command !~ /^git/i
+    def process
+      return if @command.include?("\n") || @command !~ /^git[ \-]/i
       @verb, @argument = split_command
-      raise BadCommandError if @argument.nil? || @argument.is_a?(Array) 
+      return if @argument.nil? || @argument.is_a?(Array) 
       # Check if it's read / write
       if READ_COMMANDS.include?(@verb)
         @verb_type = :read
       elsif WRITE_COMMANDS.include?(@verb)
         @verb_type = :write
       else
-        raise BadCommandError
+        return
       end
       if PATH_REGEXP =~ @argument
         @path = $2
-        raise BadCommandError unless @path
+        return unless @path
       else
-        raise BadCommandError
+        return
       end
       @bad_command = false
-    rescue BadCommandError
     end
     
-    def self.parse!(command)
+    def self.parse(command)
       command = self.new(command)
-      command.process!
+      command.process
       command
     end
     
