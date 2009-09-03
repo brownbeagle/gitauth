@@ -74,7 +74,7 @@ module GitAuth
         exit! 1
       end
       dir = BASE_DIR.join("lib", "gitauth")
-      %w(saveable_class repo user command client group).each do |file|
+      %w(message saveable_class repo user command client group).each do |file|
         require dir.join(file)
       end
       # Load the users and repositories from a YAML File.
