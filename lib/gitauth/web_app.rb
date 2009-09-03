@@ -16,7 +16,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 
-# Preload Rack and sinatra.
+# Preload Rack and sinatra. Do so in this order so
+# that we can ensure the load path is 'correct'
 GitAuth.require_vendored 'rack'
 GitAuth.require_vendored 'sinatra'
 
