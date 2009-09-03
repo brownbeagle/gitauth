@@ -1,6 +1,6 @@
 #--
 #   Copyright (C) 2009 Brown Beagle Software
-#   Copyright (C) 2008 Darcy Laycock <sutto@sutto.net>
+#   Copyright (C) 2009 Darcy Laycock <sutto@sutto.net>
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU Affero General Public License as published by
@@ -22,16 +22,16 @@ module GitAuth
         
     def self.get(name)
       GitAuth.logger.debug "Getting user for the name '#{name}'"
-      self.all.detect { |r| r.name == name }
+      all.detect { |r| r.name == name }
     end
     
     def self.create(name, admin, key)
-      # Basic sanity checking.
+      # Basic sanity checking
       return false if name.nil? || admin.nil? || key.nil?
+      # Require that the name is valid and admin is a boolean.
       return false unless name =~ /^([\w\_\-\.]+)$/ && !!admin == admin
-      user = self.new(name, admin)
-      if user.write_ssh_key!(key)
-        self.add_item(user)
+      if (user = new(name, admin)).write_ssh_key!(key)
+        add_item(user)
         return true
       else
         return false
@@ -63,7 +63,10 @@ module GitAuth
     end
     
     def command_prefix
-      "command=\"#{GitAuth.settings.shell_executable} #{@name}\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding#{shell_accessible? ? "" : ",no-pty"}"
+      options  = ["command=\"#{GitAuth.settings.shell_executable} #{@name}\"",
+                  "no-port-forwarding", "no-X11-forwarding", "no-agent-forwarding"]
+      options << "no-pty" if shell_accessible?
+      options.join(",")
     end
     
     def destroy!
@@ -87,9 +90,7 @@ module GitAuth
       !!@admin
     end
     
-    def shell_accessible?
-      admin?
-    end
+    alias shell_accessible? admin?
     
     def pushable?(repo)
       admin? || repo.writeable_by?(self)
@@ -103,10 +104,10 @@ module GitAuth
       return nil if command.bad?
       if command.write?
         GitAuth.logger.debug "Checking if #{self.name} can push to #{repo.name}"
-        return self.pushable?(repo)
+         pushable?(repo)
       else
         GitAuth.logger.debug "Checking if #{self.name} can pull from #{repo.name}"
-        return self.pullable?(repo)
+        pullable?(repo)
       end
     end
     

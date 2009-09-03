@@ -1,6 +1,6 @@
 #--
 #   Copyright (C) 2009 Brown Beagle Software
-#   Copyright (C) 2008 Darcy Laycock <sutto@sutto.net>
+#   Copyright (C) 2009 Darcy Laycock <sutto@sutto.net>
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU Affero General Public License as published by
@@ -19,20 +19,20 @@
 require 'fileutils'
 module GitAuth
   class Repo < SaveableClass(:repositories)
-    NAME_RE    = /^([\w\_\-\.\+]+(\.git)?)$/i
+    NAME_RE = /^([\w\_\-\.\+]+(\.git)?)$/i
     
     def self.get(name)
       GitAuth.logger.debug "Getting Repo w/ name: '#{name}'"
-      self.all.detect { |r| r.name == name }
+      all.detect { |r| r.name == name }
     end
     
     def self.create(name, path = name)
       return false if name.nil? || path.nil?
       return false if self.get(name) || self.all.any? { |r| r.path == path } || name !~ NAME_RE || path !~ NAME_RE
-      repository = self.new(name, path)
+      repository = new(name, path)
       return false unless repository.create_repo!
-      self.add_item(repository)
-      return repository
+      add_item(repository)
+      repository
     end
     
     attr_accessor :name, :path, :permissions
@@ -46,16 +46,12 @@ module GitAuth
       other.is_a?(Repo) && other.name == name && other.path == path
     end
     
-    def writeable_by(user_or_group)
-      @permissions[:write] ||= []
-      @permissions[:write] << user_or_group.to_s
-      @permissions[:write].uniq!
+    def writeable_by(whom)
+      add_permissions :write, whom
     end
     
-    def readable_by(user_or_group)
-      @permissions[:read] ||= []
-      @permissions[:read] << user_or_group.to_s
-      @permissions[:read].uniq!
+    def readable_by(whom)
+      add_permissions :read, whom
     end
     
     def writeable_by?(user_or_group)
@@ -84,19 +80,16 @@ module GitAuth
     
     def create_repo!
       return false if !GitAuth.has_git?
-      path = self.real_path
-      unless File.exist?(path) && File.directory?(path)
-        FileUtils.mkdir_p(path)
+      unless File.directory?(real_path)
+        FileUtils.mkdir_p(real_path)
         output = ""
-        Dir.chdir(path) do
-          IO.popen("git --bare init") { |f| output << f.read }
-        end
-        return !!(output =~ /Initialized empty Git repository/)
+        Dir.chdir(real_path) { IO.popen("git --bare init") { |f| output << f.read } }
+        !!(output =~ /Initialized empty Git repository/)
       end
     end
     
     def destroy!
-      FileUtils.rm_rf(self.real_path) if File.exist?(self.real_path)
+      FileUtils.rm_rf(real_path) if File.exist?(real_path)
       self.class.all.reject! { |r| r == self }
       self.class.save!
     end
@@ -104,22 +97,30 @@ module GitAuth
     def make_empty!
       tmp_path = "/tmp/gitauth-#{rand(100000)}-#{Time.now.to_i}"
       FileUtils.mkdir(tmp_path)
-      system('git clone', self.real_path, "#{tmp_path}/current-repo")
+      system('git', 'clone', real_path, "#{tmp_path}/current-repo")
       Dir.chdir("#{tmp_path}/current-repo") do
-        IO.popen("touch .gitignore && git commit -am 'Initial Empty Repository' && git push origin master") { |f| f.read }
+        IO.popen("touch .gitignore && git commit -am 'Initial Empty Repository' && git push origin master") { |f| f.close }
       end
       FileUtils.rm_rf(tmp_path)
     end
     
     def execute_post_create_hook!
       script = File.expand_path("~/.gitauth/post-create")
-      if File.exist?(script) && File.executable?(script)
+      if File.executable?(script)
         system(script, @name, @path)
         return $?.success?
       else
         # If there isn't a file, run it ourselves.
         return true
       end
+    end
+    
+    protected
+    
+    def add_permissions(type, whom)
+      @permissions[type] ||= []
+      @permissions[type] << whom.to_s
+      @permissions[type].uniq!
     end
     
   end
