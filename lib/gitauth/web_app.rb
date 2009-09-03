@@ -27,8 +27,8 @@ module GitAuth
     
     configure do
       set :port, 8998
-      set :views, File.join(GitAuth::BASE_DIR, "views")
-      set :public, File.join(GitAuth::BASE_DIR, "public")
+      set :views,  GitAuth::BASE_DIR.join("views")
+      set :public, GitAuth::BASE_DIR.join("public")
       set :static, true
       set :methodoverride, true
     end

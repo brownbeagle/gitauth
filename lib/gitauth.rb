@@ -20,10 +20,11 @@
 require 'logger'
 require 'yaml'
 require 'ostruct'
+require 'pathname'
 
 module GitAuth
   
-  BASE_DIR    = File.expand_path(File.join(File.dirname(__FILE__), ".."))
+  BASE_DIR    = Pathname.new(__FILE__).dirname.join("..").expand_path
   GITAUTH_DIR = File.expand_path("~/.gitauth/")
   
   def self.logger
