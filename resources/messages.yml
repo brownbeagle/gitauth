@@ -1,0 +1,9 @@
+error:
+  hook_failed: "Your GitAuth post-create hook, located at ~/.gitauth/post-create, failed to run successfully."
+  unknown: "An unknown error has occured"
+warning:
+  unknown: "Ruh-roh, something went wrong"
+notice:
+  unknown: ""
+  skipped_post_create: "Post create hook didn't exist"
+  post_create_hook_run: "Post create hook successfully was run"

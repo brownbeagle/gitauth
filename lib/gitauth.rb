@@ -29,6 +29,10 @@ module GitAuth
   
   class << self
     
+    def msg(type, message)
+      Message.new(type, message)
+    end
+    
     def require_vendored(lib)
       vendored_path = BASE_DIR.join("vendor", lib, "lib", "#{lib}.rb")
       if File.exist?(vendored_path)
