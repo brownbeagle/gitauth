@@ -45,6 +45,9 @@ module GitAuth
 
     def settings
       @settings ||= OpenStruct.new(YAML.load_file(GITAUTH_DIR.join("settings.yml")))
+    rescue Errno::ENOENT
+      puts "Your gitauth settings dir doesn't current exist. Please run `#{$0} install` first."
+      exit! 1
     end
 
     def reload_settings
