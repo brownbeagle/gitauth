@@ -167,7 +167,7 @@ GitAuth::Application.processing(ARGV) do |a|
     user = GitAuth::User.get(name)
     die! "Unknown user '#{name}'" if user.blank?
     user.destroy!
-    puts "Removed user '#{name}'"
+    puts "Removed user '#{name}' - Please note you will manually need to remove this users line from authorized_keys"
   end
   
   a.add("rm-repo NAME", "Removes the specified repo") do |name, options|
