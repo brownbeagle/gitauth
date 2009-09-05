@@ -55,24 +55,18 @@ module GitAuth
     end
     
     def update_permissions!(user, permissions = [])
-      remove_permissions_for user
+      remove_permissions_for(user)
       writeable_by(user) if permissions.include?("write")
-      writeable_by(user) if permissions.include?("read")
+      readable_by(user)  if permissions.include?("read")
       self.class.save!
     end
     
     def writeable_by?(user_or_group)
-      !(@permissions[:write] || []).detect do |writer|
-        writer = GitAuth.get_user_or_group(writer)
-        writer == user_or_group || (writer.is_a?(Group) && writer.member?(user_or_group, true))
-      end.nil?
+      has_permissions_for :write, user_or_group
     end
     
     def readable_by?(user_or_group)
-      !(@permissions[:read] || []).detect do |reader|
-        reader = GitAuth.get_user_or_group(reader)
-        reader == user_or_group || (reader.is_a?(Group) && reader.member?(user_or_group, true))
-      end.nil?
+      has_permissions_for :read, user_or_group
     end
     
     def remove_permissions_for(user_or_group)
@@ -128,6 +122,13 @@ module GitAuth
       @permissions[type] ||= []
       @permissions[type] << whom.to_s
       @permissions[type].uniq!
+    end
+    
+    def has_permissions_for(whom, type)
+      !(@permissions[type] || []).detect do |reader|
+        reader = GitAuth.get_user_or_group(reader)
+        reader == whom || (reader.is_a?(Group) && reader.member?(whom, true))
+      end.nil?
     end
     
   end

@@ -101,10 +101,10 @@ module GitAuth
     end
     
     def can_execute?(command, repo)
-      return nil if command.bad?
+      return if command.bad?
       if command.write?
         GitAuth::Logger.debug "Checking if #{self.name} can push to #{repo.name}"
-         pushable?(repo)
+        pushable?(repo)
       else
         GitAuth::Logger.debug "Checking if #{self.name} can pull from #{repo.name}"
         pullable?(repo)
