@@ -16,18 +16,21 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 
+require 'perennial'
 
-require 'logger'
 require 'yaml'
 require 'ostruct'
-require 'pathname'
 
 module GitAuth
-  
+  VERSION     = [0, 0, 4, 0]
   BASE_DIR    = Pathname.new(__FILE__).dirname.join("..").expand_path
   GITAUTH_DIR = Pathname.new("~/.gitauth/").expand_path
   
   class << self
+    
+    def version
+      VERSION.join(".")
+    end
     
     def msg(type, message)
       Message.new(type, message)
@@ -44,7 +47,7 @@ module GitAuth
     end
     
     def logger
-      @logger ||= ::Logger.new(GITAUTH_DIR.join("gitauth.log"))
+      @logger ||= Perennial::Logger.new(GITAUTH_DIR.join("gitauth.log"))
     end
 
     def settings
