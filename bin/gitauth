@@ -101,7 +101,7 @@ GitAuth::Application.processing(ARGV) do |a|
       puts "Permissions not added, exiting."
     end
   end
-  
+    
   a.option(:admin, "Makes a user an admin user")
   a.add("add-user NAME PATH-TO-PUBLIC-KEY", "Creates a user with a given public key") do |name, ssh_key, options|
     GitAuth.prepare
@@ -191,6 +191,23 @@ GitAuth::Application.processing(ARGV) do |a|
     File.open(GitAuth::BASE_DIR.join("USAGE")) do |f|
       f.each_line { |line| puts line }
     end
+  end
+  
+  a.add("show-repo NAME", "Shows information for a repository with a given name") do |name, options|
+    GitAuth.prepare
+    repo = GitAuth::Repo.get(name)
+    die! "Unknown repository '#{repo}'" if repo.blank?
+    puts "Repository Name: #{repo.name}"
+    puts "Repository Path: #{repo.path}"
+    puts "Actual Path:     #{repo.real_path}"
+    puts "\nRead Permissions:"
+    read_perms = repo.permissions.fetch(:read, [])
+    read_perms.each { |item| puts "  - #{item}" }
+    puts "  - No read permissions" if read_perms.blank?
+    puts "\nWrite Permissions:"
+    write_perms = repo.permissions.fetch(:write, [])
+    write_perms.each { |item| puts "  - #{item}" }
+    puts "  - No write permissions" if write_perms.blank?
   end
   
 end
