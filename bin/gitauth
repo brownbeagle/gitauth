@@ -80,6 +80,7 @@ GitAuth::Application.processing(ARGV) do |a|
   a.option(:type, "The type of permissions - one of all, read, write or none. Defaults to all")
   full_desc = "Gives a specific user or group the specified permissions to a given repository - pass '-h' for more information"
   a.add("permissions REPOSITORY USER-OR-GROUP", full_desc) do |repo, target, options|
+    GitAuth.prepare
     permissions = options[:type] || 'all'
     
     if !%w(all read write none).include? permissions
