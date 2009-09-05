@@ -16,15 +16,43 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'perennial'
-
-require 'yaml'
+require 'pathname'
 require 'ostruct'
 
 module GitAuth
+  
   VERSION     = [0, 0, 4, 0]
   BASE_DIR    = Pathname.new(__FILE__).dirname.join("..").expand_path
   GITAUTH_DIR = Pathname.new("~/.gitauth/").expand_path
+  
+  # This is the first declaration because we need it so that we can
+  # load a vendored version of perennial if present.
+  def self.require_vendored(lib)
+    vendored_path = BASE_DIR.join("vendor", lib, "lib", "#{lib}.rb")
+    if File.exist?(vendored_path)
+      require vendored_path
+    else
+      require 'rubygems' unless defined?(Gem)
+      require lib
+    end
+  end
+  
+  require_vendored 'perennial'
+  include Perennial
+  include Loggable
+  
+  manifest do |m, l|
+    Settings.root                  = File.dirname(__FILE__)
+    Settings.default_settings_path = GITAUTH_DIR.join("settings.yml")
+    Logger.default_logger_path     = GITAUTH_DIR.join("gitauth.log")
+    l.before_run do
+      GitAuth.each_model { |m| m.load! }
+    end
+  end
+  
+  has_library :message, :saveable_class, :repo, :user, :command, :client, :group
+  
+  autoload :WebApp, BASE_DIR.join("lib", "gitauth", "web_app")
   
   class << self
     
@@ -34,31 +62,6 @@ module GitAuth
     
     def msg(type, message)
       Message.new(type, message)
-    end
-    
-    def require_vendored(lib)
-      vendored_path = BASE_DIR.join("vendor", lib, "lib", "#{lib}.rb")
-      if File.exist?(vendored_path)
-        require vendored_path
-      else
-        require 'rubygems' unless defined?(Gem)
-        require lib
-      end
-    end
-    
-    def logger
-      @logger ||= Perennial::Logger.new(GITAUTH_DIR.join("gitauth.log"))
-    end
-
-    def settings
-      @settings ||= OpenStruct.new(YAML.load_file(GITAUTH_DIR.join("settings.yml")))
-    rescue Errno::ENOENT
-      puts "Your gitauth settings dir doesn't current exist. Please run `#{$0} install` first."
-      exit! 1
-    end
-
-    def reload_settings
-      @settings = nil
     end
 
     def get_user_or_group(name)
@@ -71,29 +74,9 @@ module GitAuth
       !`which git`.strip.empty?
     end
 
-    def setup!
-      unless File.exist?(GITAUTH_DIR) && File.directory?(GITAUTH_DIR)
-        $stderr.puts "GitAuth not been setup, please run `gitauth install`"
-        exit! 1
-      end
-      dir = BASE_DIR.join("lib", "gitauth")
-      %w(message saveable_class repo user command client group).each do |file|
-        require dir.join(file)
-      end
-      # Load the users and repositories from a YAML File.
-      self.each_model { |m| m.load! }
-    end
-
     def serve_web
       self.setup!
-      require BASE_DIR.join("lib", "gitauth", "web_app")
       GitAuth::WebApp.run!
-    end
-
-    def force_setup
-      @settings = nil
-      self.each_model { |m| m.all = nil }
-      self.setup!
     end
 
     def each_model(&blk)
