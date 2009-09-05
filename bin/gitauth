@@ -121,6 +121,8 @@ class GitAuthRunner < Thor
       print "Where did you want repositories to be stored? (default: ~/repositories/): "
       path = Readline.readline.strip
       path = File.expand_path("~/repositories") if path.empty?
+      # Convert it into a full path
+      path = File.expand_path(path)
       begin
         FileUtils.mkdir_p(path)
       rescue
@@ -128,7 +130,7 @@ class GitAuthRunner < Thor
         $stderr.puts "Please check again"
         exit! 1
       end
-      current_gitauth_shell_path = GitAuth::BASE_DIR.join("bin", "gitauth-shell")
+      current_gitauth_shell_path = GitAuth::BASE_DIR.join("bin", "gitauth-shell").to_s
       $stdout.print "What is the path to your gitauth-shell (default: '#{current_gitauth_shell_path}'):  "
       gitauth_shell_path = Readline.readline
       gitauth_shell_path = current_gitauth_shell_path if gitauth_shell_path.empty?

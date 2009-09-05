@@ -75,7 +75,7 @@ module GitAuth
     end
     
     def real_path
-      File.join(GitAuth.settings.base_path, @path)
+      File.join(GitAuth::Settings.base_path, @path)
     end
     
     def create_repo!

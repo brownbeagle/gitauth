@@ -25,8 +25,30 @@ require 'digest/sha2'
 module GitAuth
   class WebApp < Sinatra::Base
     
+    cattr_accessor :current_server
+    
+    def self.run(options = {})
+        set options
+        handler      = detect_rack_handler
+        handler_name = handler.name.gsub(/.*::/, '')
+        GitAuth::Logger.debug "Starting up web server on #{port}"
+        handler.run self, :Host => host, :Port => port do |server|
+          GitAuth::WebApp.current_server = server
+          set :running, true
+        end
+      rescue Errno::EADDRINUSE => e
+        GitAuth::Logger.debug "Server is already running on port #{port}"
+    end
+    
+    def self.stop
+      if current_server.present?
+        current_server.respond_to?(:stop!) ? current_server.stop! : current_server.stop
+      end
+      GitAuth::Logger.debug "Stopped Server."
+    end
+    
     use Rack::Auth::Basic do |username, password|
-      [username, Digest::SHA256.hexdigest(password)] == [GitAuth.settings.web_username, GitAuth.settings.web_password_hash]
+      [username, Digest::SHA256.hexdigest(password)] == [GitAuth::Settings.web_username, GitAuth::Settings.web_password_hash]
     end
     
     configure do
@@ -37,7 +59,7 @@ module GitAuth
       set :methodoverride, true
     end
     
-    before { GitAuth.force_setup }
+    before { GitAuth.reload_models! }
     
     helpers do
       include Rack::Utils
@@ -71,7 +93,6 @@ module GitAuth
       @groups = GitAuth::Group.all
       erb :index
     end
-    
     
     # Listing / Index Page
     
@@ -224,7 +245,6 @@ module GitAuth
         redirect root_with_message("Group removed.")
       end
     end
-    
     
     # Misc Helpers
     

@@ -23,6 +23,7 @@ module GitAuth
   
   VERSION     = [0, 0, 4, 0]
   BASE_DIR    = Pathname.new(__FILE__).dirname.join("..").expand_path
+  LIB_DIR     = BASE_DIR.join("lib", "gitauth")
   GITAUTH_DIR = Pathname.new("~/.gitauth/").expand_path
   
   # This is the first declaration because we need it so that we can
@@ -30,7 +31,8 @@ module GitAuth
   def self.require_vendored(lib)
     vendored_path = BASE_DIR.join("vendor", lib, "lib", "#{lib}.rb")
     if File.exist?(vendored_path)
-      require vendored_path
+      $:.unshift File.dirname(vendored_path)
+      require lib
     else
       require 'rubygems' unless defined?(Gem)
       require lib
@@ -41,18 +43,21 @@ module GitAuth
   include Perennial
   include Loggable
   
+  require LIB_DIR.join("settings")
+  
+  %w(message saveable_class repo user command client group).each do |file|
+    require LIB_DIR.join(file)
+  end
+  
+  autoload :WebApp, LIB_DIR.join('web_app').to_s
+  
   manifest do |m, l|
     Settings.root                  = File.dirname(__FILE__)
     Settings.default_settings_path = GITAUTH_DIR.join("settings.yml")
     Logger.default_logger_path     = GITAUTH_DIR.join("gitauth.log")
-    l.before_run do
-      GitAuth.each_model { |m| m.load! }
-    end
+    l.before_run { GitAuth.each_model(:load!) }
+    l.register_controller :web_app, 'GitAuth::WebApp'
   end
-  
-  has_library :message, :saveable_class, :repo, :user, :command, :client, :group
-  
-  autoload :WebApp, BASE_DIR.join("lib", "gitauth", "web_app")
   
   class << self
     
@@ -71,16 +76,16 @@ module GitAuth
     end
 
     def has_git?
-      !`which git`.strip.empty?
+      !`which git`.blank?
     end
 
-    def serve_web
-      self.setup!
-      GitAuth::WebApp.run!
+    def each_model(method = nil, &blk)
+      [Repo, User, Group].each { |m| m.send(method) } if method.present?
+      [Repo, User, Group].each(&blk) unless blk.nil?
     end
-
-    def each_model(&blk)
-      [Repo, User, Group].each(&blk)
+    
+    def reload_models!
+      each_model(:load!)
     end
     
   end

@@ -55,7 +55,7 @@ module GitAuth
         return false
       else
         output = "#{command_prefix} #{cleaned_key}"
-        File.open(GitAuth.settings.authorized_keys_file, "a+") do |file|
+        File.open(GitAuth::Settings.authorized_keys_file, "a+") do |file|
           file.puts output
         end
         return true
@@ -63,7 +63,7 @@ module GitAuth
     end
     
     def command_prefix
-      options  = ["command=\"#{GitAuth.settings.shell_executable} #{@name}\"",
+      options  = ["command=\"#{GitAuth::Settings.shell_executable} #{@name}\"",
                   "no-port-forwarding", "no-X11-forwarding", "no-agent-forwarding"]
       options << "no-pty" if shell_accessible?
       options.join(",")
@@ -73,7 +73,7 @@ module GitAuth
       GitAuth::Repo.all.each  { |r| r.remove_permissions_for(self) }
       GitAuth::Group.all.each { |g| g.remove_member(self) }
       # Remove the public key from the authorized_keys file.
-      auth_keys_path = GitAuth.settings.authorized_keys_file
+      auth_keys_path = GitAuth::Settings.authorized_keys_file
       if File.exist?(auth_keys_path)
         contents = File.read(auth_keys_path)
         contents.gsub!(/#{command_prefix} ssh-\w+ [a-zA-Z0-9\/\+]+==\r?\n?/m, "")
