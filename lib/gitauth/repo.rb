@@ -22,8 +22,8 @@ module GitAuth
     NAME_RE = /^([\w\_\-\.\+]+(\.git)?)$/i
     
     def self.get(name)
-      GitAuth.logger.debug "Getting Repo w/ name: '#{name}'"
-      all.detect { |r| r.name == name }
+      GitAuth::Logger.debug "Getting Repo w/ name: '#{name}'"
+      (all || []).detect { |r| r.name == name }
     end
     
     def self.create(name, path = name)
@@ -52,6 +52,13 @@ module GitAuth
     
     def readable_by(whom)
       add_permissions :read, whom
+    end
+    
+    def update_permissions!(user, permissions = [])
+      remove_permissions_for user
+      writeable_by(user) if permissions.include?("write")
+      writeable_by(user) if permissions.include?("read")
+      self.class.save!
     end
     
     def writeable_by?(user_or_group)

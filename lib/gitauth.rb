@@ -49,7 +49,8 @@ module GitAuth
     require LIB_DIR.join(file)
   end
   
-  autoload :WebApp, LIB_DIR.join('web_app').to_s
+  autoload :AuthSetupMiddleware, LIB_DIR.join('auth_setup_middleware').to_s
+  autoload :WebApp,              LIB_DIR.join('web_app').to_s
   
   manifest do |m, l|
     Settings.root                  = File.dirname(__FILE__)
@@ -60,6 +61,11 @@ module GitAuth
   end
   
   class << self
+    
+    def prepare
+      Settings.setup
+      reload_models!
+    end
     
     def version
       VERSION.join(".")

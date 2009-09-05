@@ -1,0 +1,27 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang='en-US' xml:lang='en-US' xmlns='http://www.w3.org/1999/xhtml'>
+  <head>
+    <title>GitAuth</title>
+    <link rel="stylesheet" type="text/css" href="/gitauth.css" media="screen" />
+  </head>
+  <body>
+    <div id="container">
+      <div id="header">
+        <h1><a href="/">GitAuth Admin Area</a></h1>
+      </div>
+      <div id="contents">
+        <div id='error-container'>
+          <h2>Ruh-roh Scooby!</h2>
+          <p>
+            It looks like you need to setup a username and password for GitAuth to function
+            correctly. Please log in the computer running this GitAuth install and run
+            <code>gitauth web-app</code> manually once. Thanks!
+          </p>
+        </div>
+      </div>
+      <div id="footer">
+        Powered by GitAuth v<%= GitAuth.version %>
+      </div>
+    </div>
+  </body>
+</html>

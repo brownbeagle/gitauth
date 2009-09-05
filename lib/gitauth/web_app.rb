@@ -27,17 +27,54 @@ module GitAuth
     
     cattr_accessor :current_server
     
-    def self.run(options = {})
-        set options
-        handler      = detect_rack_handler
-        handler_name = handler.name.gsub(/.*::/, '')
-        GitAuth::Logger.debug "Starting up web server on #{port}"
-        handler.run self, :Host => host, :Port => port do |server|
-          GitAuth::WebApp.current_server = server
-          set :running, true
+    def self.has_auth?
+      username = GitAuth::Settings["web_username"]
+      password = GitAuth::Settings["web_password_hash"]
+      !(username.blank? || password.blank?)
+    end
+    
+    def self.update_auth
+      raw_username = Readline.readline('GitAuth Username (default is \'gitauth\'): ')
+      raw_username = 'gitauth' if raw_username.blank?
+      raw_password = ''
+      while raw_password.blank?
+        system "stty -echo" 
+        raw_password = Readline.readline('GitAuth Password: ')
+        system "stty echo"
+        print "\n"
+        puts "You need to provide a password, please try again" if raw_password.blank?
+      end
+      GitAuth::Settings.update!({
+        :web_username      => raw_username,
+        :web_password_hash => Digest::SHA256.hexdigest(raw_password)
+      })
+    end
+    
+    def self.check_auth
+      if !has_auth?
+        if $stderr.tty?
+          GitAuth::Logger.logger.verbose = true 
+          puts "For gitauth to continue, you need to provide a username and password."
+          update_auth
+        else
+          GitAuth::Logger.fatal "You need to provide a username and password for GitAuth to function; Please run 'gitauth webapp` once"
+          exit!
         end
-      rescue Errno::EADDRINUSE => e
-        GitAuth::Logger.debug "Server is already running on port #{port}"
+      end
+    end
+    
+    def self.run(options = {})
+      check_auth
+      set options
+      handler      = detect_rack_handler
+      handler_name = handler.name.gsub(/.*::/, '')
+      GitAuth::Logger.info "Starting up web server on #{port}"
+      handler.run self, :Host => host, :Port => port do |server|
+        GitAuth::WebApp.current_server = server
+        set :running, true
+      end
+    rescue Errno::EADDRINUSE => e
+      GitAuth::Logger.fatal "Server is already running on port #{port}"
     end
     
     def self.stop
@@ -47,8 +84,10 @@ module GitAuth
       GitAuth::Logger.debug "Stopped Server."
     end
     
+    use GitAuth::AuthSetupMiddleware
+    
     use Rack::Auth::Basic do |username, password|
-      [username, Digest::SHA256.hexdigest(password)] == [GitAuth::Settings.web_username, GitAuth::Settings.web_password_hash]
+      [username, Digest::SHA256.hexdigest(password)] == [GitAuth::Settings["web_username"], GitAuth::Settings["web_password_hash"]]
     end
     
     configure do

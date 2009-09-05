@@ -19,15 +19,11 @@
 #++
 
 
-REAL_FILE = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
+base = __FILE__
+# Get out of symlink-hell and then require the gitauth file.
+base = File.readlink(base) while File.symlink?(base)
+require File.expand_path(File.join(File.dirname(base), "..", "lib", "gitauth"))
 
-# Require the proper gitauth file.
-require File.expand_path(File.join(File.dirname(REAL_FILE), "..", "lib", "gitauth"))
-
-GitAuth.setup!
-
-# Gitorious does it so I should too!
-File.umask(0022)
-
+# Start the cli client.
 GitAuth::Client.start!(ARGV[0], ENV["SSH_ORIGINAL_COMMAND"])
 

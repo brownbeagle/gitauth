@@ -18,5 +18,13 @@ module GitAuth
       @@setup = true
     end
     
+    def self.update!(hash)
+      settings_file = self.default_settings_path
+      settings = File.file?(settings_file) ? YAML.load(File.read(settings_file)) : {}
+      hash.each_pair { |k,v| settings[k.to_s] = v }
+      File.open(settings_file, "w+") { |f| f.write(settings.to_yaml) }
+      setup!
+    end
+    
   end
 end

@@ -25,14 +25,14 @@ module GitAuth
     attr_accessor :user, :command
     
     def initialize(user_name, command)
-      GitAuth.logger.debug "Initializing client with command: #{command.inspect} and user name #{user_name.inspect}"
+      GitAuth::Logger.debug "Initializing client with command: #{command.inspect} and user name #{user_name.inspect}"
       @callbacks = Hash.new { |h,k| h[k] = [] }
       @user      = GitAuth::User.get(user_name.to_s.strip)
       @command   = command
     end
     
     def exit_with_error(error)
-      GitAuth.logger.warn "Exiting with error: #{error}"
+      GitAuth::Logger.warn "Exiting with error: #{error}"
       $stderr.puts error
       exit! 1
     end
@@ -59,21 +59,26 @@ module GitAuth
           exit_with_error "Ze repository you specified does not exist."
         elsif user.can_execute?(command, repo)
           git_shell_argument = "#{command.verb} '#{repo.real_path}'"
-          GitAuth.logger.info "Running command: #{git_shell_argument} for user: #{@user.name}"
+          GitAuth::Logger.info "Running command: #{git_shell_argument} for user: #{@user.name}"
           exec("git-shell", "-c", git_shell_argument)
         else
           exit_with_error "These are not the droids you are looking for"
         end
       end
     rescue Exception => e
-      GitAuth.logger.fatal "Exception: #{e.class.name}: #{e.message}"
+      GitAuth::Logger.fatal "Exception: #{e.class.name}: #{e.message}"
       e.backtrace.each do |l|
-        GitAuth.logger.fatal "  => #{l}"
+        GitAuth::Logger.fatal "  => #{l}"
       end
       exit_with_error "Holy crap, we've imploded cap'n!"
     end
     
     def self.start!(user, command)
+      # Gitorious does it so I should too!
+      File.umask(0022)
+      # Setup models etc
+      GitAuth.prepare
+      # Finally, create and initialize
       client = self.new(user, command)
       yield client if block_given?
       client.run!

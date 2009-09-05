@@ -73,7 +73,7 @@ module GitAuth
     end
     
     def self.get(name)
-      GitAuth.logger.debug "Getting group named #{name.inspect}"
+      GitAuth::Logger.debug "Getting group named #{name.inspect}"
       real_name = name.to_s.gsub(/^@/, "")
       self.all.detect { |g| g.name == real_name }
     end

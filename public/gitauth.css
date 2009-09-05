@@ -285,3 +285,28 @@ br.clear { clear: both; }
   background: #F4F4F4;
   margin: 0.25em 0;
 }
+
+#error-container {
+  padding: 1em 3em 1.5em;
+}
+
+#error-container h2 {
+  font-size: 1.5em;
+  text-align: center;
+  font-weight: bold;
+  padding: 0 0 0.5em;
+  color: red;
+}
+
+#error-container p {
+  font-size: 1.2em;
+  line-height: 1.5em;
+  color: #222;
+  text-align: center;
+}
+
+#error-container p code {
+  font-style: italic;
+  color: black;
+  font-weight: bold;
+}
