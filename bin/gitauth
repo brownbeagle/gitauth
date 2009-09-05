@@ -1,254 +1,195 @@
 #!/usr/bin/env ruby
-
-#--
-#   Copyright (C) 2009 Brown Beagle Software
-#   Copyright (C) 2009 Darcy Laycock <sutto@sutto.net>
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU Affero General Public License as published by
-#   the Free Software Foundation, either version 3 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU Affero General Public License for more details.
-#
-#   You should have received a copy of the GNU Affero General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#++
-
-require 'rubygems'
-require 'readline'
-require 'thor'
 require File.join(File.dirname(__FILE__), "..", "lib", "gitauth")
 
+GitAuth::Application.processing(ARGV) do |a|
+  a.banner = "GitAuth v#{GitAuth.version}"
+  
+  a.generator!
+  
+  a.option(:force, "force the creation of the settings file")
+  a.option(:admin, "pass the path to a ssh public key and it adds a default admin user")
+  a.add("install", "Sets up GitAuth for the current user") do |options|
+    
+    setup_generator ".", :silent => true
+    
+    # Check for a valid admin key
+    if options.has_key?(:admin) && (!options[:admin].is_a?(String) || !file?(options[:admin]))
+      puts "You provided the admin option but didn't provide it with a path to public key."
+      die! "Please re-run again with a path to a key, e.g. --admin=~/id_rsa.pub"
+    end
+    
+    if !yes?("Are you logged in as the correct user?")
+      die!("Please log in as the correct user and re-run") 
+    end
 
-class GitAuthRunner < Thor
-  
-  map "-h" => :help
-  map "--help" => :help
-  map "--usage" => :usage
-  
-  # Adding users, groups and repos
-  
-  desc "addrepo REPO-NAME [PATH-PART]", "Adds a new repository"
-  def addrepo(name, path = name)
-    GitAuth.setup!
-    if GitAuth::Repo.create(name, path)
-      $stdout.puts "Repo was successfully created"
-    else
-      $stderr.puts "There was an error creating the repo"
-      exit! 1
-    end
-  end
-  
-  desc "adduser NAME PATH-TO-PUBLIC-KEY [--admin]", "Adds a user"
-  method_options :admin => :boolean
-  def adduser(name, key_path)
-    GitAuth.setup!
-    admin = !!(options && options[:admin])
-    if GitAuth::User.create(name, admin, File.read(key_path).strip)
-      $stdout.puts "User added"
-    else
-      $stderr.puts "There was an error adding the given user"
-      exit! 
-    end
-  end
-  
-  desc "addgroup NAME", "Adds a group with the specified name"
-  def addgroup(name)
-    GitAuth.setup!
-    if GitAuth::Group.create(name)
-      $stdout.puts "The group was added"
-    else
-      $stderr.puts "There was an error creating the aforementioned group"
-      exit! 1
-    end
-  end
-  
-  # Misc. operations
-  
-  desc "permissions REPO USERORGROUP [PERMISION=all,read,write]", "Adds Permissions for a user or group to a repository"
-  def permissions(repo, user_or_group, permissions = "all")
-    GitAuth.setup!
-    unless %w(read write all).include?(permissions)
-      $stderr.puts "Invalid permissions: #{permissions}"
-      exit! 1
-    end
-    repo = GitAuth::Repo.get(repo)
-    uog  = GitAuth.get_user_or_group(user_or_group)
-    if repo.nil? || uog.nil?
-      $stderr.puts "Invalid repository or user, please check the name"
-      exit! 1
-    end
-    repo.writeable_by(uog) if %w(all write).include?(permissions)
-    repo.readable_by(uog)  if %w(all read).include?(permissions)
-    GitAuth::Repo.save!
-    $stdout.puts "Permissions Added"
-  end
-  
-  desc "install [ADMIN-PUBLIC-KEY]", "creates and sets the permissions for .ssh and .ssh/authorized keys"
-  method_options :force_config => :boolean
-  def install(public_key_path = nil)
-    $stdout.print "Are you logged in as the correct user? (y/n) "
-    answer = Readline.readline
-    if answer !~ /^y/i
-      $stderr.puts "Please log in as the correct user and re-run"
-      exit! 1
-    end
     if !GitAuth.has_git?
-      $stderr.puts "'git' was not found in your path - please install it before continuing."
-      exit! 1
+      die!("'git' was not found in your path - please install it / add it to your path before continuing.")
     end
-    require 'fileutils'
-    folder = File.expand_path("~/.ssh")
-    if !File.exist?(folder) || !File.directory?(folder)
-      FileUtils.mkdir(folder)
-      FileUtils.chmod(0700, folder)
+
+    ssh_folder = "~/.ssh"
+    if !folder?(ssh_folder)
+      folders ssh_folder
+      chmod 0700, ssh_folder
     end
-    authorized_keys = File.join(folder, "authorized_keys")
-    if !File.exist?(authorized_keys)
-      File.open(authorized_keys, "w+") do |f|
-        f.puts "## GitAuth - DO NO EDIT BELOW THIS LINE ##"
-      end
-      FileUtils.chmod(0600, authorized_keys)
+
+    authorized_keys = ssh_folder / "authorized_keys"
+    if !file?(authorized_keys)
+      file authorized_keys, "\n\n## GitAuth - DO NO EDIT BELOW THIS LINE ##\n"
+      chmod 0600, authorized_keys
     end
-    gitauth_folder = File.expand_path("~/.gitauth/")
-    FileUtils.mkdir(gitauth_folder) if !File.exist?(gitauth_folder) || !File.directory?(gitauth_folder)
-    gitauth_settings_path = File.join(gitauth_folder, "settings.yml")
-    unless File.exist?(gitauth_settings_path) || (options && options[:force_config])
-      print "Where did you want repositories to be stored? (default: ~/repositories/): "
-      path = Readline.readline.strip
-      path = File.expand_path("~/repositories") if path.empty?
-      # Convert it into a full path
-      path = File.expand_path(path)
-      begin
-        FileUtils.mkdir_p(path)
-      rescue
-        $stderr.puts "There was an error making the repository folder: #{path}"
-        $stderr.puts "Please check again"
-        exit! 1
-      end
-      current_gitauth_shell_path = GitAuth::BASE_DIR.join("bin", "gitauth-shell").to_s
-      $stdout.print "What is the path to your gitauth-shell (default: '#{current_gitauth_shell_path}'):  "
-      gitauth_shell_path = Readline.readline
-      gitauth_shell_path = current_gitauth_shell_path if gitauth_shell_path.empty?
-      File.open(gitauth_settings_path, "w+") do |f|
-        f.write({
-          "base_path"            => path,
-          "authorized_keys_file" => authorized_keys,
-          "shell_executable"     => gitauth_shell_path
-        }.to_yaml)
-      end
-      if !public_key_path.nil? && File.exist?(public_key_path)
-        GitAuth.setup!
-        created = GitAuth::User.create("admin", true, File.read(public_key_path).strip)
-        if created
-          $stdout.puts "Admin User Created."
+
+    gitauth_folder = "~/.gitauth/"
+    folders gitauth_folder
+
+    settings_file = gitauth_folder / "settings.yml"
+    if !file?(settings_file) || options[:force]
+      repo_path = ask("Where did you want repositories to be stored?", "~/repositories")
+      repo_path = File.expand_path(repo_path)
+      folders repo_path
+
+      default_shell_path = GitAuth::BASE_DIR.join("bin", "gitauth-shell").to_s
+      gitauth_shell_path = ""
+      gitauth_shell_set  = false
+      while gitauth_shell_path.blank? || !(file?(gitauth_shell_path) && executable?(gitauth_shell_path))
+        # A Give the user a message if the path doesn't exist.
+        if gitauth_shell_set
+          puts "The shell you provided, #{gitauth_shell_path}, isn't executable"
         else
-          $stderr.puts "An admin user couldn't be created."
-          exit! 1
+          gitauth_shell_set = true
         end
+        gitauth_shell_path = ask("What is the path to your gitauth-shell?", default_shell_path)
+        gitauth_shell_path = File.expand_path(gitauth_shell_path)
       end
+
+      GitAuth::Settings.update!({
+        :base_path            => File.expand_path(repo_path),
+        :authorized_keys_file => File.expand_path(authorized_keys),
+        :shell_executable     => File.expand_path(gitauth_shell_path)
+      })
     end
-  rescue Errno::EACCES
-      $stderr.puts "Hey, it looks you don't have access to that - sorry!"
-      exit! 1
+
+    if options[:admin]
+      
+    end
+    
+  end
+
+  a.controller! :web_app, "Starts the gitauth frontend using the default sintra runner"
+  
+  a.option(:force, "Skip the verification / confirmation part of adding the permissions")
+  a.option(:type, "The type of permissions - one of all, read, write or none. Defaults to all")
+  full_desc = "Gives a specific user or group the specified permissions to a given repository - pass '-h' for more information"
+  a.add("permissions REPOSITORY USER-OR-GROUP", full_desc) do |repo, target, options|
+    permissions = options[:type] || 'all'
+    
+    if !%w(all read write none).include? permissions
+      die! "'#{permissions}' is not a valid permission type. It must be all, read, write or none"
+    end
+    
+    real_permissions = ({"all" => ["read", "write"], "none" => []}[permissions] || [permissions])
+    repository       = GitAuth::Repo.get(repo)
+    real_target      = GitAuth.get_user_or_group(target)
+    
+    die! "Unknown repository '#{repo}'"      if repository.blank?
+    die! "Unknown user or group '#{target}'" if real_target.blank?
+    
+    if options[:force] || yes?("Adding '#{permissions}' permissions for #{real_target} to #{repository.name}")
+      repository.update_permissions!(real_target, real_permissions)
+      puts "Permissions updated."
+    else
+      puts "Permissions not added, exiting."
+    end
   end
   
-  # Viewing Users etc
-  
-  desc "repos", "Lists all the current repos handled by gitauth"
-  def repos
-    GitAuth.setup!
-    $stdout.puts "Repositories:"
-    GitAuth::Repo.all.each do |repo|
-      line = " - #{repo.name}"
-      line << " (#{repo.path})" if repo.path != repo.name
-      $stdout.puts line
+  a.option(:admin, "Makes a user an admin user")
+  a.add("add-user NAME PATH-TO-PUBLIC-KEY", "Creates a user with a given public key") do |name, ssh_key, options|
+    GitAuth.prepare
+    die! "'#{ssh_key}' is not a valid path to a public key" if !File.file?(ssh_key)
+    admin = !!options[:admin]
+    contents = File.read(ssh_key).strip
+    if GitAuth::User.create(name, admin, contents)
+      puts "Successfully added user '#{name}' (user #{admin ? 'is' : 'is not'} an admin)"
+    else
+      die! "There was an unknown error attempting to add a user called '#{name}'"
     end
   end
   
-  desc "users", "Lists all users handled by gitauth"
-  def users
-    GitAuth.setup!
-    $stdout.puts "Users:"
-    GitAuth::User.all.each do |user|
+  a.add("add-repo NAME [PATH=NAME]", "Creates a named repository, with an optional path on the file system") do |name, *args|
+    GitAuth.prepare
+    options = args.extract_options!
+    path = (args.shift || name)
+    if GitAuth::Repo.create(name, path)
+      puts "Successfully created repository '#{name}' located at '#{path}'"
+    else
+      die! "Unable to create repository '#{name}' in location '#{path}'"
+    end
+  end
+  
+  a.add("add-group NAME", "Creates a group with a given name") do |name, options|
+    GitAuth.prepare
+    if GitAuth::Group.create(name)
+      puts "Successfully created group '#{name}'"
+    else
+      die! "Unable to create group '#{name}'"
+    end
+  end
+  
+  a.add("ls-users", "Lists all users currently managed by gitauth") do |options|
+    GitAuth.prepare
+    puts "Users:"
+    (GitAuth::User.all || []).each do |user|
       line = "- #{user}"
       line << " (admin)" if user.admin?
-      $stdout.puts line
-    end
-  end
-  
-  desc "groups", "Lists all groups handled by gitauth"
-  def groups
-    GitAuth.setup!
-    $stdout.puts "Groups:"
-    GitAuth::Group.all.each do |group|
-      $stdout.puts "- #{group} - #{group.members.empty? ? "no members" : group.members.join(", ")}"
-    end
-  end
-  
-  desc "webapp", "starts serving the GitAuth web-app on Port 8998"
-  def webapp
-    s = GitAuth.settings
-    if s.web_username.to_s.empty? || s.web_password_hash.to_s.empty?
-      $stdout.puts "To use the web interface you must first setup some credentials:"
-      $stdout.print "What username would you like to use? (default is 'gitauth'): "
-      username = Readline.readline.strip
-      username = "gitauth" if username.empty?
-      $stdout.print "What password would you like to use?: "
-      password = read_password
-      while password.empty?
-        $stdout.print "Please try again, What password would you like to use?: "
-        password = read_password
-      end
-      print "Please enter your password again: "
-      confirmation = read_password
-      while confirmation != password
-        print "Wrong password, please confirm again: "
-        confirmation = read_password
-      end
-      require 'digest/sha2'
-      settings = YAML.load_file(GitAuth::GITAUTH_DIR.join("settings.yml"))
-      settings.merge!({
-        "web_username"      => username,
-        "web_password_hash" => Digest::SHA256.hexdigest(password)
-      })
-      File.open(GitAuth::GITAUTH_DIR.join("settings.yml"), "w+") { |f| f.write settings.to_yaml }
-      puts "Username and Password saved."
-      GitAuth.reload_settings
-    end
-    GitAuth.serve_web
-  rescue Interrupt
-    exit! 1
-  end
-  
-  def usage
-    counter = 1
-    file = File.new("USAGE", "r")
-    while (line = file.gets)
       puts line
-      counter = counter + 1
     end
-    file.close
   end
   
-  protected
-  
-  def read_password
-    system "stty -echo" 
-    line = Readline.readline.strip
-    system "stty echo"
-    print "\n"
-    return line
+  a.add("ls-repos", "Lists all repositories currently managed by gitauth") do |options|
+    GitAuth.prepare
+    puts "Repositories:"
+    (GitAuth::Repo.all || []).each do |repo|
+      line = " - #{repo.name}"
+      line << " (#{repo.path})" if repo.path != repo.name
+      puts line
+    end
   end
   
-end
-
-if ARGV.empty?
-  GitAuthRunner.new.help
-else
-  GitAuthRunner.start
+  a.add("ls-groups", "Lists all groups currently managed by gitauth") do |options|
+    GitAuth.prepare
+    puts "Groups:"
+    (GitAuth::Group.all || []).each do |group|
+      puts "- #{group} (#{group.members.empty? ? "no members" : group.members.join(", ")})"
+    end
+  end
+  
+  a.add("rm-user NAME", "Removes the specified user") do |name, options|
+    GitAuth.prepare
+    user = GitAuth::User.get(name)
+    die! "Unknown user '#{name}'" if user.blank?
+    user.destroy!
+    puts "Removed user '#{name}'"
+  end
+  
+  a.add("rm-repo NAME", "Removes the specified repo") do |name, options|
+    GitAuth.prepare
+    repo = GitAuth::Repo.get(name)
+    die! "Unknown repo '#{name}'" if repo.blank?
+    repo.destroy!
+    puts "Removed repo '#{name}'"
+  end
+  
+  a.add("rm-group NAME", "Removes the specified group") do |name, options|
+    GitAuth.prepare
+    group = GitAuth::Group.get(name)
+    die! "Unknown group '#{name}'" if group.blank?
+    group.destroy!
+    puts "Removed group '#{name}'"
+  end
+  
+  a.add("usage", "Prints out the sample usage instructions") do |options|
+    File.open(GitAuth::BASE_DIR.join("USAGE")) do |f|
+      f.each_line { |line| puts line }
+    end
+  end
+  
 end

@@ -30,6 +30,8 @@ module GitAuth
       return false if name.nil? || admin.nil? || key.nil?
       # Require that the name is valid and admin is a boolean.
       return false unless name =~ /^([\w\_\-\.]+)$/ && !!admin == admin
+      # Check there isn't an existing user
+      return false unless get(name).blank?
       if (user = new(name, admin)).write_ssh_key!(key)
         add_item(user)
         return true
@@ -65,7 +67,7 @@ module GitAuth
     def command_prefix
       options  = ["command=\"#{GitAuth::Settings.shell_executable} #{@name}\"",
                   "no-port-forwarding", "no-X11-forwarding", "no-agent-forwarding"]
-      options << "no-pty" if shell_accessible?
+      options << "no-pty" if !shell_accessible?
       options.join(",")
     end
     
