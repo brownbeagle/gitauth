@@ -9,7 +9,7 @@ gitauth permissions REPO USERORGROUP [PERMISSION=all,read,write]
   PERMISSION:
     Default = all
     The level of permissions you want to give the user or group on the repository in question
-      all = read/write
+      all = read and write
       read = the user can see the repository and pull it, but cannot push changes
       write = user can push changes but can't pull it.
       
