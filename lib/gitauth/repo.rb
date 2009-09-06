@@ -97,12 +97,18 @@ module GitAuth
     
     def make_empty!
       tmp_path = "/tmp/gitauth-#{rand(100000)}-#{Time.now.to_i}"
-      FileUtils.mkdir(tmp_path)
-      system('git', 'clone', real_path, "#{tmp_path}/current-repo")
+      FileUtils.mkdir_p(File.join(tmp_path, "current-repo"))
       Dir.chdir("#{tmp_path}/current-repo") do
-        IO.popen("touch .gitignore && git commit -am 'Initial Empty Repository' && git push origin master") { |f| f.close }
+        GitAuth.run "touch .gitignore"
+        # Configure it
+        GitAuth.run "git config push.default current"
+        GitAuth.run "git commit -am 'Initialize Empty Repository'"
+        # Push the changes to the actual repository
+        GitAuth.run "git remote add origin '#{self.real_path}'"
+        GitAuth.run "git push origin master"
       end
-      FileUtils.rm_rf(tmp_path)
+    ensure
+      FileUtils.rm_rf(tmp_path) if File.directory?(tmp_path)
     end
     
     def execute_post_create_hook!

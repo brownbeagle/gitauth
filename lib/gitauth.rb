@@ -94,6 +94,10 @@ module GitAuth
       each_model(:load!)
     end
     
+    def run(command)
+      system "#{command} 2> /dev/null 1> /dev/null"
+    end
+    
   end
   
 end
