@@ -97,17 +97,24 @@ module GitAuth
     
     def make_empty!
       tmp_path = "/tmp/gitauth-#{rand(100000)}-#{Time.now.to_i}"
-      FileUtils.mkdir_p(File.join(tmp_path, "current-repo"))
+      GitAuth::Logger.info "Creating temporary dir at #{tmp_path}"
+      FileUtils.mkdir_p("#{tmp_path}/current-repo"))
+      GitAuth::Logger.info "Changing to new directory"
       Dir.chdir("#{tmp_path}/current-repo") do
+        GitAuth::Logger.info "Touching .gitignore"
         GitAuth.run "touch .gitignore"
         # Configure it
         GitAuth.run "git config push.default current"
+        GitAuth::Logger.info "Commiting"
         GitAuth.run "git commit -am 'Initialize Empty Repository'"
         # Push the changes to the actual repository
+        GitAuth::Logger.info "Adding origin #{self.real_path}"
         GitAuth.run "git remote add origin '#{self.real_path}'"
+        GitAuth::Logger.info "Pushing..."
         GitAuth.run "git push origin master"
       end
     ensure
+      GitAuth::Logger.info "Cleaning up old tmp file"
       FileUtils.rm_rf(tmp_path) if File.directory?(tmp_path)
     end
     
