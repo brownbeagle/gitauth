@@ -15,6 +15,16 @@ Getting started is relatively simple. First of, you'll need to log onto the remo
 
   sudo gem install brownbeagle-gitauth --source http://gems.github.com/
   
+Or, if you want to avoid the gems approach, you can use simply clone the repository
+as follows and use the git submodule setup in order to vendor rack, sinatra and perennial:
+
+  git clone git://github.com/brownbeagle/gitauth.git
+  cd gitauth
+  git submodule init
+  git submodule update
+  
+With the gitauth binary being in the bin folder.
+  
 Once that's done, the +gitauth+ and +gitauth-shell+ commands should be in your path.
 Next, you'll want to (in most cases anyway) use a specific +git+ user to host repositories.
 
@@ -23,25 +33,25 @@ Using the example of ubuntu, we'll add a git user under which all actions will n
   sudo adduser --disabled-password --shell /bin/bash --group --home /home/git --system --gecos 'gitauth user for version control' git
   
 Now, whenever you run the +gitauth+ executable, you'll do so as the user you just created
-above. For simplicity purposes, I added the the following to my zsh profile so I always
-had it available. If you don't wish to, just use as you would without the alias:
+above. For example purposes, I suggest using the following in order to run all commands
+as the 'git' user:
 
-  alias asgit='sudo -H -u git'
+  sudo -H -u git -i
   
 And finally, to create a settings file and initialize .ssh and authorized_keys, perform the
 following:
 
-  asgit gitauth install
+  gitauth install
   
 Note that when it asks you for the gitauth shell path, the default will lock
 it to the current gitauth version SO if you want it to stay up to date between gem versions
 point it to the path for always-current executable (e.g. on Ubuntu 9.04 w/ apt-get ruby + gems,
 +/var/lib/gems/1.8/bin/gitauth-shell+)  
 
-Also, Note that if you append a path to a public key to the end of the install command,
+Also, Note that if use the --admin option with path to a public key to the end of the install command,
 it will initialize a new +admin+ user who can also login via SSH. e.g.
 
-  asgit gitauth install id_rsa.pub
+  gitauth install --admin id_rsa.pub
   
 Would initialize an admin user with the given public key.
 
@@ -52,17 +62,23 @@ git (via the admin user and ssh) or by being prefixed with asgit or "sudo -H -u 
 
 To start the web interface, just run:
 
-  gitauth webapp
+  gitauth web-app
   
 The first time you boot the web app, you will be prompted
 to enter a username and a password. Please do so
 and then surf to http://your-server-ip:8998/
 
+For people running passenger, you can simply point it at
+the public subdirectory and it will act as any normal passenger
+web app. It's worth noting that in this approach you need
+to run gitauth web-app at least once to setup a username and
+password.
+
 === Adding Users
 
 Whenever you want to add a user, it's as simple as:
 
-  gitauth adduser user-name path-to-public-key
+  gitauth add-user user-name path-to-public-key
   
 Note that if the --admin option is specified, the user will
 be able to log in to the shell via SSH and will also be able
@@ -72,14 +88,22 @@ to access any repository.
 
 Adding a repository is a two step process. First, you create it:
 
-  gitauth addrepo repo-name
+  gitauth add-repo repo-name
+  
+If you wish to initialize the repository with a blank commit (so
+git clone works straight away), simply pass --make-empty / -m as
+an option. e.g.:
+
+  gitauth add-repo repo-name --make-empty
   
 Then, for every user who needs access, you do:
 
-  gitauth permissions repo-name user-name permission-type
+  gitauth permissions repo-name user-name --type=permission-type
   
 Where permission type is read, write or all. If permission
-type isn't specified, it will default to all.
+type isn't specified, it will default to all. If you wish
+to remove a user from a repository, you can simply pass
+use the type as none.
 
 === Accessing repos:
 
@@ -95,7 +119,8 @@ Or
 Either form working just as well.
 
 Note that for the first time you push, you will need
-to use the full form:
+to use the full form (as below) unless you've used
+the --make-empty / -m option when you created the repo.
 
   git push origin master
 
@@ -113,3 +138,4 @@ on your local PC (due to the way git handles remote repositories):
   git commit -m "Added blank readme"
   git add remote origin git@your-server:my-repo.git
   git push origin master
+  

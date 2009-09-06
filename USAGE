@@ -1,27 +1,2 @@
 GitAuth is an SSH and Ruby based authenticated Git server.
 
-gitauth install ADMIN_PUBLIC_KEY
-  Pass in a valid SSH public key that will be used by the GitAuth administrator
-  
-gitauth permissions REPO USERORGROUP [PERMISSION=all,read,write]
-  REPO: the repository name you wish to set permissions on
-  USER/GROUP: the user or group name you with to give permissions
-  PERMISSION:
-    Default = all
-    The level of permissions you want to give the user or group on the repository in question
-      all = read and write
-      read = the user can see the repository and pull it, but cannot push changes
-      write = user can push changes but can't pull it.
-      
-gitauth addrepo NAME PATH
-  NAME: the name you want your repository to have
-  PATH: the part path you want the repository to have, will be ~REPOBASE~/PATH
-  
-gitauth adduser [--admin] NAME PUBLIC_KEY
-  NAME: the name of your new user
-  PUBLIC_KEY: a valid path to a copy of the users SSH public key file
-  
-  --admin: pass this flag if you want your user to be able to administer the gitauth install
-  
-gitauth addgroup NAME
-  NAME: the name of your new group
