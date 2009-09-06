@@ -120,12 +120,17 @@ GitAuth::Application.processing(ARGV) do |a|
     end
   end
   
+  a.option(:make_empty, "Initializes the repository to be empty / have an initial blank commit")
   a.add("add-repo NAME [PATH=NAME]", "Creates a named repository, with an optional path on the file system") do |name, *args|
     GitAuth.prepare
     options = args.extract_options!
     path = (args.shift || name)
-    if GitAuth::Repo.create(name, path)
+    if (repo = GitAuth::Repo.create(name, path))
       puts "Successfully created repository '#{name}' located at '#{path}'"
+      if options[:make_empty]
+        puts "Attempting to make empty repository"
+        repo.make_empty!
+      end
     else
       die! "Unable to create repository '#{name}' in location '#{path}'"
     end

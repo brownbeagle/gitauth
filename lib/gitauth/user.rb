@@ -19,9 +19,10 @@
 
 module GitAuth
   class User < SaveableClass(:users)
-        
+    include logger  
+    
     def self.get(name)
-      GitAuth::Logger.debug "Getting user for the name '#{name}'"
+      logger.debug "Getting user for the name '#{name}'"
       (all || []).detect { |r| r.name == name }
     end
     
@@ -109,10 +110,10 @@ module GitAuth
     def can_execute?(command, repo)
       return if command.bad?
       if command.write?
-        GitAuth::Logger.debug "Checking if #{self.name} can push to #{repo.name}"
+        logger.debug "Checking if #{self.name} can push to #{repo.name}"
         pushable?(repo)
       else
-        GitAuth::Logger.debug "Checking if #{self.name} can pull from #{repo.name}"
+        logger.debug "Checking if #{self.name} can pull from #{repo.name}"
         pullable?(repo)
       end
     end

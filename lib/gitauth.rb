@@ -97,7 +97,7 @@ module GitAuth
     def run(command)
       GitAuth::Logger.info "Running command: #{command}"
       result = system "#{command} 2> /dev/null 1> /dev/null"
-      GitAuth::Logger.info "Command was #{"not " if !result}successfull"
+      GitAuth::Logger.info "Command was #{"not " if !result}successful"
       return result
     end
     

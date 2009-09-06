@@ -24,6 +24,7 @@ GitAuth.require_vendored 'sinatra'
 require 'digest/sha2'
 module GitAuth
   class WebApp < Sinatra::Base
+    include logger
     
     cattr_accessor :current_server
     
@@ -53,11 +54,11 @@ module GitAuth
     def self.check_auth
       if !has_auth?
         if $stderr.tty?
-          GitAuth::Logger.logger.verbose = true 
+          logger.verbose = true 
           puts "For gitauth to continue, you need to provide a username and password."
           update_auth
         else
-          GitAuth::Logger.fatal "You need to provide a username and password for GitAuth to function; Please run 'gitauth webapp` once"
+          logger.fatal "You need to provide a username and password for GitAuth to function; Please run 'gitauth webapp` once"
           exit!
         end
       end
@@ -68,20 +69,20 @@ module GitAuth
       set options
       handler      = detect_rack_handler
       handler_name = handler.name.gsub(/.*::/, '')
-      GitAuth::Logger.info "Starting up web server on #{port}"
+      logger.info "Starting up web server on #{port}"
       handler.run self, :Host => host, :Port => port do |server|
         GitAuth::WebApp.current_server = server
         set :running, true
       end
     rescue Errno::EADDRINUSE => e
-      GitAuth::Logger.fatal "Server is already running on port #{port}"
+      logger.fatal "Server is already running on port #{port}"
     end
     
     def self.stop
       if current_server.present?
         current_server.respond_to?(:stop!) ? current_server.stop! : current_server.stop
       end
-      GitAuth::Logger.debug "Stopped Server."
+      logger.debug "Stopped Server."
     end
     
     use GitAuth::AuthSetupMiddleware

@@ -19,7 +19,8 @@
 
 module GitAuth
   class Group < SaveableClass(:groups)
-
+    include logger
+    
     attr_accessor :name, :members
     
     def initialize(name)
@@ -73,7 +74,7 @@ module GitAuth
     end
     
     def self.get(name)
-      GitAuth::Logger.debug "Getting group named #{name.inspect}"
+      logger.debug "Getting group named #{name.inspect}"
       real_name = name.to_s.gsub(/^@/, "")
       self.all.detect { |g| g.name == real_name }
     end

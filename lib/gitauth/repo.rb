@@ -19,10 +19,12 @@
 require 'fileutils'
 module GitAuth
   class Repo < SaveableClass(:repositories)
+    include GitAuth::Loggable
+    
     NAME_RE = /^([\w\_\-\.\+]+(\.git)?)$/i
     
     def self.get(name)
-      GitAuth::Logger.debug "Getting Repo w/ name: '#{name}'"
+      logger.debug "Getting Repo w/ name: '#{name}'"
       (all || []).detect { |r| r.name == name }
     end
     
@@ -97,27 +99,27 @@ module GitAuth
     
     def make_empty!
       tmp_path = "/tmp/gitauth-#{rand(100000)}-#{Time.now.to_i}"
-      GitAuth::Logger.info "Creating temporary dir at #{tmp_path}"
+      logger.info "Creating temporary dir at #{tmp_path}"
       FileUtils.mkdir_p("#{tmp_path}/current-repo")
-      GitAuth::Logger.info "Changing to new directory"
+      logger.info "Changing to new directory"
       Dir.chdir("#{tmp_path}/current-repo") do
-        GitAuth::Logger.info "Marking as git repo"
+        logger.info "Marking as git repo"
         GitAuth.run "git init"
-        GitAuth::Logger.info "Touching .gitignore"
+        logger.info "Touching .gitignore"
         GitAuth.run "touch .gitignore"
         # Configure it
         GitAuth.run "git config push.default current"
-        GitAuth::Logger.info "Commiting"
+        logger.info "Commiting"
         GitAuth.run "git add ."
         GitAuth.run "git commit -am 'Initialize Empty Repository'"
         # Push the changes to the actual repository
-        GitAuth::Logger.info "Adding origin #{self.real_path}"
+        logger.info "Adding origin #{self.real_path}"
         GitAuth.run "git remote add origin '#{self.real_path}'"
-        GitAuth::Logger.info "Pushing..."
+        logger.info "Pushing..."
         GitAuth.run "git push origin master"
       end
     ensure
-      GitAuth::Logger.info "Cleaning up old tmp file"
+      logger.info "Cleaning up old tmp file"
       FileUtils.rm_rf(tmp_path) if File.directory?(tmp_path)
     end
     
@@ -142,7 +144,7 @@ module GitAuth
     
     def has_permissions_for(type, whom)
       whom = GitAuth.get_user_or_group(whom) if whom.is_a?(String)
-      GitAuth::Logger.info "Checking if #{whom.to_s} can #{type} #{self.name}"
+      logger.info "Checking if #{whom.to_s} can #{type} #{self.name}"
       !(@permissions[type] || []).detect do |reader|
         reader = GitAuth.get_user_or_group(reader)
         reader == whom || (reader.is_a?(Group) && reader.member?(whom, true))
