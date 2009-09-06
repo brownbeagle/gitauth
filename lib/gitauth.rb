@@ -63,7 +63,7 @@ module GitAuth
   class << self
     
     def prepare
-      Settings.setup
+      Settings.setup!
       reload_models!
     end
     

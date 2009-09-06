@@ -181,6 +181,7 @@ div.message {
 .section ul {
   line-height: 1.8em;
   margin: 0.5em 1em;
+  font-family: Helvetica, Arial, Sans-Serif;
 }
 
 .section ul li {
@@ -193,12 +194,15 @@ div.message {
   width: 4em;
   color: white;
   background: #666;
-  font-size: 0.8em;
+  font-size: 0.65em;
   text-transform: uppercase;
   font-weight: bold;
   text-align: center;
-  padding: 0 0.75em;
+  padding: 0 0.5em;
   margin-right: 0.5em;
+  -moz-border-radius: 0.6em;
+  -webkit-border-radius: 0.6em;
+  font-family: Helvetica, Arial, Sans-Serif;
 }
 
 #users .tag.admin {

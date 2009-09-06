@@ -52,6 +52,7 @@ module GitAuth
     end
     
     def self.check_auth
+      GitAuth.prepare
       if !has_auth?
         if $stderr.tty?
           logger.verbose = true 
@@ -82,6 +83,7 @@ module GitAuth
       if current_server.present?
         current_server.respond_to?(:stop!) ? current_server.stop! : current_server.stop
       end
+      exit!
       logger.debug "Stopped Server."
     end
     
@@ -181,6 +183,7 @@ module GitAuth
       path = params[:repo][:path]
       path = name if path.to_s.strip.empty?
       if repo = GitAuth::Repo.create(name, path)
+        repo.make_empty! if (params[:repo][:make_empty] == "1")
         if repo.execute_post_create_hook!
           redirect "/?repo_name=#{URI.encode(name)}"
         else
