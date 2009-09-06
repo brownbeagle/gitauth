@@ -43,8 +43,6 @@ module GitAuth
   include Perennial
   include Loggable
   
-  require LIB_DIR.join("settings")
-  
   %w(message saveable_class repo user command client group).each do |file|
     require LIB_DIR.join(file)
   end
@@ -55,6 +53,7 @@ module GitAuth
   manifest do |m, l|
     Settings.root                  = File.dirname(__FILE__)
     Settings.default_settings_path = GITAUTH_DIR.join("settings.yml")
+    Settings.lookup_key_path       = []
     Logger.default_logger_path     = GITAUTH_DIR.join("gitauth.log")
     l.before_run { GitAuth.each_model(:load!) }
     l.register_controller :web_app, 'GitAuth::WebApp'
