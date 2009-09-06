@@ -98,7 +98,7 @@ module GitAuth
     def make_empty!
       tmp_path = "/tmp/gitauth-#{rand(100000)}-#{Time.now.to_i}"
       GitAuth::Logger.info "Creating temporary dir at #{tmp_path}"
-      FileUtils.mkdir_p("#{tmp_path}/current-repo"))
+      FileUtils.mkdir_p("#{tmp_path}/current-repo")
       GitAuth::Logger.info "Changing to new directory"
       Dir.chdir("#{tmp_path}/current-repo") do
         GitAuth::Logger.info "Touching .gitignore"
