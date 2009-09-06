@@ -198,9 +198,13 @@ GitAuth::Application.processing(ARGV) do |a|
   end
   
   a.add("usage", "Prints out the sample usage instructions") do |options|
-    File.open(GitAuth::BASE_DIR.join("USAGE")) do |f|
-      f.each_line { |line| puts line }
+    pager = nil
+    if ENV.has_key?('PAGER')
+      pager = ENV['PAGER'].blank? ? 'cat' : ENV['PAGER']
+    else
+      pager = "less"
     end
+    exec "#{pager} '#{GitAuth::BASE_DIR.join("USAGE")}'"
   end
   
   a.add("show-repo NAME", "Shows information for a repository with a given name") do |name, options|

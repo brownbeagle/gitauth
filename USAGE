@@ -1,2 +1,47 @@
-GitAuth is an SSH and Ruby based authenticated Git server.
+GitAuth is a tool to provide authenticated git hosting from any unix like
+box using ruby, git-shell and a whole lot of awesomeness.
+
+Available commands include:
+  
+  ls-users    - Lists all users handled by GitAuth
+  
+  ls-groups   - Lists all groups handled by GitAuth
+  
+  ls-repos    - Lists all repositories handled by GitAuth
+  
+  add-user    - adds a user with a specific name and ssh key
+    e.g. gitauth add-user darcy ~/id_rsa-one.pub
+    or,: gitauth add-user sutto ~/id_rsa-two.pub --admin
+    
+    Would create two users, one an admin and one a normal user.
+    
+  add-group   - Adds a group with a specified name.  
+    e.g: gitauth add-group brownbeagle
+    or,: gitauth add-group brownbeagle
+    
+    From there on in, you can refer to the group as @brownbeagle
+    
+  add-repo    - Adds a repository with a specific name and an optional path
+    e.g: gitauth add-repo project-a
+    or,: gitauth add-repo project-b --make-empty
+    or,: gitauth add-repo project-c my-path-to-repo.git
+    or,: gitauth add-repo project-d my-path-to-other-repo --make-empty
+    
+    --make-empty initializes it with a blank commit whilst
+    a second argument sets the path for the created repository.
+    The path is only ever used internally, the user refers to
+    it externally. e.g, project-c above would be accessible by:
+    user@your-server.com:project-c or user@your-server.com:project-c.git
+    
+  permissions - Set the permissions for a given user or group on a specific repository.
+    e.g: gitauth permissions project-a darcy
+    or,: gitauth permissions project-b darcy --type read
+    or,: gitauth permissions project-c darcy --type none
+    or,: gitauth permissions project-a @brownbeagle -t read
+    or,: gitauth permissions project-b @brownbeagle
+    
+    The first argument being the repository name, the second a target -
+    either a user (e.g. darcy), or, if prefixed with an @-symbol, a group.
+    An optional --type argument specifies what permissions to use (all, read, write
+    or none - defaulting to all).
 
