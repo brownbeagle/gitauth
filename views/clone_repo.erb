@@ -6,17 +6,19 @@
   </p>
   <code>  cd your-repo
   git remote add origin <%= repo_url %>
-  git push origin master</code>
+  git push origin master<%= " --force" if params[:made_empty] == "yes" %></code>
   <p>
     Otherwise, to initialize an empty repository:
   </p>
-  <code>  mkdir your-repo
+  <% if params[:made_empty] == "yes" %>
+  <code>git clone <%= repo_url %></code>
+  <% else %><code>  mkdir your-repo
   cd your-repo
   git init
   touch .gitignore
   git add .gitignore
   git commit -m "Added blank .gitignore to initialize repository"
   git remote add origin <%= repo_url %>
-  git push origin master</code>
+  git push origin master</code><% end %>
   <p>And you should be good to go! <a href="#" onclick="$('#repository-details').slideUp(); return false;">(close instructions)</a></p>
 </div>

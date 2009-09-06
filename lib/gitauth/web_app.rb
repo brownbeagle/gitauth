@@ -183,9 +183,10 @@ module GitAuth
       path = params[:repo][:path]
       path = name if path.to_s.strip.empty?
       if repo = GitAuth::Repo.create(name, path)
-        repo.make_empty! if (params[:repo][:make_empty] == "1")
+        make_empty = (params[:repo][:make_empty] == "1")
+        repo.make_empty! if make_empty
         if repo.execute_post_create_hook!
-          redirect "/?repo_name=#{URI.encode(name)}"
+          redirect "/?repo_name=#{URI.encode(name)}&made_empty=#{make_empty ? "yes" : "no"}"
         else
           redirect root_with_message("Repository added but the post-create hook exited unsuccessfully.")
         end
