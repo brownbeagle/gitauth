@@ -9,6 +9,16 @@ Available commands include:
   
   ls-repos    - Lists all repositories handled by GitAuth
   
+  show-user   - Shows information about a user with a given name
+    e.g: gitauth show-user darcy
+    
+  show-group  - Shows information about a group with a given name
+    e.g: gitauth show-group brownbeagle
+    or,: gitauth show-group @brownbeagle
+    
+  show-repo   - Shows information about a repository with a given name
+    e.g: gitauth show-repo project-a
+  
   add-user    - adds a user with a specific name and ssh key
     e.g. gitauth add-user darcy ~/id_rsa-one.pub
     or,: gitauth add-user sutto ~/id_rsa-two.pub --admin
@@ -32,6 +42,16 @@ Available commands include:
     The path is only ever used internally, the user refers to
     it externally. e.g, project-c above would be accessible by:
     user@your-server.com:project-c or user@your-server.com:project-c.git
+  
+  rm-user     - Removes a user with the given name
+    e.g: gitauth rm-user darcy
+
+  rm-group    - Removes a specific group from GitAuth
+    e.g: gitauth rm-group brownbeagle
+    or,: gitauth rm-group @brownbeagle
+
+  rm-repo     - Removes a repository from gitauth (destroys it on the filesystem as well)
+    e.g: gitauth rm-repo project-a
     
   permissions - Set the permissions for a given user or group on a specific repository.
     e.g: gitauth permissions project-a darcy
@@ -44,4 +64,7 @@ Available commands include:
     either a user (e.g. darcy), or, if prefixed with an @-symbol, a group.
     An optional --type argument specifies what permissions to use (all, read, write
     or none - defaulting to all).
+    
+  web-app     - Starts up the web app, serving on port 8998
+    e.g: gitauth web-app
 
