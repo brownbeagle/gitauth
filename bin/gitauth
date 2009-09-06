@@ -74,11 +74,11 @@ GitAuth::Application.processing(ARGV) do |a|
     
   end
 
-  a.controller! :web_app, "Starts the gitauth frontend using the default sintra runner"
+  a.controller!(:web_app, "Starts the gitauth frontend using the default sintra runner", :skip_path => true)
   
   a.option(:force, "Skip the verification / confirmation part of adding the permissions")
   a.option(:type, "The type of permissions - one of all, read, write or none. Defaults to all")
-  full_desc = "Gives a specific user or group the specified permissions to a given repository - pass '-h' for more information"
+  full_desc = "Gives a specific user or group the specified permissions to a given repository"
   a.add("permissions REPOSITORY USER-OR-GROUP", full_desc) do |repo, target, options|
     GitAuth.prepare
     permissions = options[:type] || 'all'

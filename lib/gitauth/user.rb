@@ -125,6 +125,10 @@ module GitAuth
       end
     end
     
+    def self.valid_key?(key)
+      clean_ssh_key(key).present?
+    end
+    
   end
   Users = User # For Backwards Compat.
 end
