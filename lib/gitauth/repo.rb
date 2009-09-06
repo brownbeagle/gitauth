@@ -108,6 +108,7 @@ module GitAuth
         # Configure it
         GitAuth.run "git config push.default current"
         GitAuth::Logger.info "Commiting"
+        GitAuth.run "git add ."
         GitAuth.run "git commit -am 'Initialize Empty Repository'"
         # Push the changes to the actual repository
         GitAuth::Logger.info "Adding origin #{self.real_path}"
