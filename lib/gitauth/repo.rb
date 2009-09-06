@@ -101,6 +101,8 @@ module GitAuth
       FileUtils.mkdir_p("#{tmp_path}/current-repo")
       GitAuth::Logger.info "Changing to new directory"
       Dir.chdir("#{tmp_path}/current-repo") do
+        GitAuth::Logger.info "Marking as git repo"
+        GitAuth.run "git init"
         GitAuth::Logger.info "Touching .gitignore"
         GitAuth.run "touch .gitignore"
         # Configure it
