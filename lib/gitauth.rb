@@ -21,7 +21,7 @@ require 'ostruct'
 
 module GitAuth
   
-  VERSION     = [0, 0, 4, 1]
+  VERSION     = [0, 0, 4, 2]
   BASE_DIR    = Pathname.new(__FILE__).dirname.join("..").expand_path
   LIB_DIR     = BASE_DIR.join("lib", "gitauth")
   GITAUTH_DIR = Pathname.new("~/.gitauth/").expand_path
