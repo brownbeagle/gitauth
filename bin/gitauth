@@ -210,4 +210,26 @@ GitAuth::Application.processing(ARGV) do |a|
     puts "  - No write permissions" if write_perms.blank?
   end
   
+  a.add("show-group NAME", "Shows information for a group with a given name") do |name, options|
+    GitAuth.prepare
+    group = GitAuth::Group.get(name)
+    die! "Unable to find a group named '#{name}'" if group.blank?
+    puts "Group Name:     #{group.name}"
+    puts "Reference Name: #{group.to_s}"
+    puts "\nGroup Members:"
+    group.members.each { |member| puts "  - #{member}" }
+    puts "  - This group has no members" if group.members.blank?
+  end
+  
+  a.add("show-user NAME", "Shows details for a user with a specific name") do |name, options|
+    GitAuth.prepare
+    user = GitAuth::User.get(name)
+    die! "Unable to find a user named '#{name}'" if user.blank?
+    puts "User Name: #{user.name}"
+    groups = user.groups
+    puts "\nGroups:"
+    puts "  - This user isn't a member of any groups" if groups.blank?
+    groups.each { |g| puts "  - #{g.to_s}" }
+  end
+  
 end

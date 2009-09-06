@@ -88,6 +88,10 @@ module GitAuth
       GitAuth::Group.save!
     end
     
+    def groups
+      (Group.all || []).select { |g| g.member?(self) }
+    end
+    
     def admin?
       !!@admin
     end
