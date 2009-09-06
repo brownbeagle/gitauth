@@ -17,47 +17,36 @@
 #++
 
 module GitAuth
-  def self.SaveableClass(kind)
-    klass = Class.new
-    path_name = "#{kind.to_s.upcase}_PATH"
-    yaml_file_name = "#{kind}.yml"
+  
+  class BasicSaveable
     
-    saveable_class_def = <<-END
+    class_inheritable_accessor :all, :store_path
     
-      #{path_name} = GitAuth::GITAUTH_DIR.join(#{yaml_file_name.inspect})
-
-      class << self
-    
-        def all
-          @@all_#{kind} ||= nil
-        end
+    class << self
       
-        def all=(value)
-          @@all_#{kind} = value
-        end
-      
-        def load!
-          self.all = YAML.load_file(#{path_name}) rescue nil if File.exist?(#{path_name})
-          self.all = [] unless self.all.is_a?(Array)
-        end
-
-        def save!
-          load! if self.all.nil?
-          File.open(#{path_name}, "w+") do |f|
-            f.write self.all.to_yaml
-          end
-        end
-      
-        def add_item(item)
-          self.load! if self.all.nil?
-          self.all << item
-          self.save!
-        end
-    
+      def load!
+        self.all = YAML.load(File.read(store_path)) rescue nil if File.file?(store_path)
+        self.all = [] unless all.is_a?(Array)
       end
-    
-    END
-    klass.class_eval(saveable_class_def)
+      
+      def save!
+        load! if all.nil?
+        File.open(store_path, "w+") { |f| f.write all.to_yaml }
+      end
+      
+      def add_item(item)
+        load! if all.nil?
+        all << item
+        save!
+      end
+      
+    end
+  end
+  
+  def self.SaveableClass(kind)
+    klass            = Class.new(BasicSaveable)
+    klass.store_path = GitAuth::GITAUTH_DIR.join("#{kind}.yml").to_s
+    klass.all        = nil
     return klass
   end
 end
