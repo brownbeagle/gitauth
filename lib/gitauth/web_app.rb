@@ -24,7 +24,7 @@ GitAuth.require_vendored 'sinatra'
 require 'digest/sha2'
 module GitAuth
   class WebApp < Sinatra::Base
-    include logger
+    include GitAuth::Loggable
     
     cattr_accessor :current_server
     

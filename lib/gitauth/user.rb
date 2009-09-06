@@ -19,7 +19,7 @@
 
 module GitAuth
   class User < SaveableClass(:users)
-    include logger  
+    include GitAuth::Loggable  
     
     def self.get(name)
       logger.debug "Getting user for the name '#{name}'"

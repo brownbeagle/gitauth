@@ -2,6 +2,22 @@ require 'rake'
 
 EXTRAS = ["config.ru", "LICENSE", "README.rdoc", "USAGE"]
 
+require 'rake/testtask'
+
+task :default => "test:units"
+
+namespace :test do
+  
+  desc "Runs the unit tests for perennial"
+  Rake::TestTask.new("units") do |t|
+    t.pattern = 'test/*_test.rb'
+    t.libs << 'test'
+    t.verbose = true
+  end
+  
+end
+
+
 task :gemspec do
   require 'rubygems'
   require File.join(File.dirname(__FILE__), "lib", "gitauth")
@@ -19,6 +35,11 @@ task :gemspec do
     s.add_dependency "rack-rack", ">= 1.0"
     s.add_dependency "sinatra-sinatra", ">= 0.9.0"
     s.add_dependency "Sutto-perennial"
+    # Add in dev. dependencies
+    s.add_development_dependency "thoughtbot-shoulda", ">= 2.0.0"
+    s.add_development_dependency "redgreen", ">= 1.0.0"
+    s.add_development_dependency "rr", ">= 0.10.0"
+    s.add_development_dependency "rack-test"
   end
   File.open("gitauth.gemspec", "w+") { |f| f.puts spec.to_ruby }
 end

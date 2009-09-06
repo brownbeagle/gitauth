@@ -19,7 +19,7 @@
 
 module GitAuth
   class Group < SaveableClass(:groups)
-    include logger
+    include GitAuth::Loggable
     
     attr_accessor :name, :members
     
