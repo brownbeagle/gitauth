@@ -69,7 +69,12 @@ GitAuth::Application.processing(ARGV) do |a|
     end
 
     if options[:admin]
-      
+      key_contents = File.read(options[:admin]).strip
+      if GitAuth::User.create("admin", true, key_contents)
+        puts "Default admin user added with key '#{options[:admin]}'"
+      else
+        die! "Error adding default admin user with key at '#{options[:admin]}'"
+      end
     end
     
   end

@@ -125,6 +125,8 @@ module GitAuth
     end
     
     def has_permissions_for(whom, type)
+      whom = GitAuth.get_user_or_group(whom) if whom.is_a?(String)
+      GitAuth::Logger.info "Checking if #{whom.to_s} can #{type} #{self.name}"
       !(@permissions[type] || []).detect do |reader|
         reader = GitAuth.get_user_or_group(reader)
         reader == whom || (reader.is_a?(Group) && reader.member?(whom, true))
