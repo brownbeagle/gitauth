@@ -32,7 +32,7 @@ task :gemspec do
     s.files       = (FileList["{bin,lib,public,resources,views}/**/*"].to_a + EXTRAS).sort
     s.executables = FileList["bin/*"].to_a.map { |f| File.basename(f) }
     s.platform    = Gem::Platform::RUBY
-    s.add_dependency "rack-rack", ">= 1.0"
+    s.add_dependency "rack", ">= 1.0"
     s.add_dependency "sinatra-sinatra", ">= 0.9.0"
     s.add_dependency "Sutto-perennial", ">= 0.2.3"
     # Add in dev. dependencies
