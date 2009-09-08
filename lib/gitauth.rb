@@ -55,8 +55,9 @@ module GitAuth
     Settings.default_settings_path = GITAUTH_DIR.join("settings.yml")
     Settings.lookup_key_path       = []
     Logger.default_logger_path     = GITAUTH_DIR.join("gitauth.log")
-    l.before_run { GitAuth.each_model(:load!) }
+    # Register stuff on the loader.
     l.register_controller :web_app, 'GitAuth::WebApp'
+    l.before_run { GitAuth.prepare }
   end
   
   class << self
