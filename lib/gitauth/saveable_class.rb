@@ -21,7 +21,7 @@ module GitAuth
   class BasicSaveable
     
     class_inheritable_accessor :all, :store_path
-    self.all = nilin  
+    self.all = nil
     
     class << self
       

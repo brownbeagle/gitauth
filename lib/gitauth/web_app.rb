@@ -18,8 +18,8 @@
 
 # Preload Rack and sinatra. Do so in this order so
 # that we can ensure the load path is 'correct'
-GitAuth.require_vendored 'rack'
-GitAuth.require_vendored 'sinatra'
+GitAuth.require_vendored 'rack'    unless defined?(Rack)
+GitAuth.require_vendored 'sinatra' unless defined?(Sinatra)
 
 require 'digest/sha2'
 module GitAuth
