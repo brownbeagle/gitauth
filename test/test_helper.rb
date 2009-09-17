@@ -1,9 +1,13 @@
 require 'rubygems'
 
-gem "thoughtbot-shoulda", ">= 2.0.0"
-gem "redgreen",           ">= 1.0.0"
-gem "rr",                 ">= 0.10.0"
-gem "rack-test"
+if defined?(Gem)
+  # Check the versions of the gems we're loading
+  # just to be sure
+  gem "thoughtbot-shoulda", ">= 2.0.0"
+  gem "redgreen",           ">= 1.0.0"
+  gem "rr",                 ">= 0.10.0"
+  gem "rack-test"
+end
 
 # Testing dependencies
 require 'test/unit'
@@ -12,12 +16,11 @@ require 'rr'
 require 'redgreen' if RUBY_VERSION < "1.9"
 
 require 'pathname'
-root_directory = Pathname.new(__FILE__).dirname.join("..").expand_path
-require root_directory.join("lib", "gitauth")
+require Pathname(__FILE__).dirname.join("..").expand_path.join("lib", "gitauth")
 
-# Preload rack requirements
-GitAuth.require_vendored 'rack'
-GitAuth.require_vendored 'sinatra'
+# Misc. app dependencies
+require 'rack'
+require 'sinatra'
 require 'rack/test'
 
 class Test::Unit::TestCase

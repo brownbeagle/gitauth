@@ -17,38 +17,20 @@
 #++
 
 require 'pathname'
-require 'ostruct'
+
+# Prepend lib dir + any vendored lib's to the front of the load
+# path to ensure they're loaded first.
+$LOAD_PATH.unshift(*Dir[Pathname(__FILE__).dirname.join("../{lib,vendor/*/lib}").expand_path])
+
+require 'perennial'
 
 module GitAuth
-  
-  VERSION     = [0, 0, 4, 5]
-  BASE_DIR    = Pathname.new(__FILE__).dirname.join("..").expand_path
-  LIB_DIR     = BASE_DIR.join("lib", "gitauth")
-  GITAUTH_DIR = Pathname.new("~/.gitauth/").expand_path
-  
-  # This is the first declaration because we need it so that we can
-  # load a vendored version of perennial if present.
-  def self.require_vendored(lib)
-    vendored_path = BASE_DIR.join("vendor", lib, "lib", "#{lib}.rb")
-    if File.exist?(vendored_path)
-      $:.unshift File.dirname(vendored_path)
-      require lib
-    else
-      require 'rubygems' unless defined?(Gem)
-      require lib
-    end
-  end
-  
-  require_vendored 'perennial'
   include Perennial
   include Loggable
   
-  %w(message saveable_class repo user command client group).each do |file|
-    require LIB_DIR.join(file)
-  end
-  
-  autoload :AuthSetupMiddleware, LIB_DIR.join('auth_setup_middleware').to_s
-  autoload :WebApp,              LIB_DIR.join('web_app').to_s
+  VERSION     = [0, 0, 4, 5]
+  BASE_DIR    = Pathname(__FILE__).dirname.join("..").expand_path
+  GITAUTH_DIR = Pathname("~/.gitauth/").expand_path
   
   manifest do |m, l|
     Settings.root                  = File.dirname(__FILE__)
@@ -59,6 +41,17 @@ module GitAuth
     l.register_controller :web_app, 'GitAuth::WebApp'
     l.before_run { GitAuth.prepare }
   end
+  
+  require 'gitauth/message'        # Basic error messages etc (as of yet unushed)
+  require 'gitauth/saveable_class' # Simple YAML store for dumpables classes
+  require 'gitauth/repo'           # The basic GitAuth repo object
+  require 'gitauth/user'           # The basic GitAuth user object
+  require 'gitauth/group'          # The basic GitAuth group object (collection of users)
+  require 'gitauth/command'        # Processes / filters commands
+  require 'gitauth/client'         # Handles the actual SSH interaction / bringing it together
+  
+  autoload    :AuthSetupMiddleware, 'gitauth/auth_setup_middleware'
+  autoload    :WebApp,              'gitauth/web_app'
   
   class << self
     

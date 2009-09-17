@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require File.join(File.dirname(__FILE__), "..", "lib", "gitauth")
+require File.expand_path(File.join(File.dirname(__FILE__), "..", "lib", "gitauth"))
 
 GitAuth::Application.processing(ARGV) do |a|
   a.banner = "GitAuth v#{GitAuth.version}"

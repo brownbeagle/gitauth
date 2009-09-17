@@ -16,12 +16,10 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 
-# Preload Rack and sinatra. Do so in this order so
-# that we can ensure the load path is 'correct'
-GitAuth.require_vendored 'rack'    unless defined?(Rack)
-GitAuth.require_vendored 'sinatra' unless defined?(Sinatra)
-
+require 'rack'
+require 'sinatra'
 require 'digest/sha2'
+
 module GitAuth
   class WebApp < Sinatra::Base
     include GitAuth::Loggable

@@ -22,6 +22,7 @@
 base = __FILE__
 # Get out of symlink-hell and then require the gitauth file.
 base = File.readlink(base) while File.symlink?(base)
+
 require File.expand_path(File.join(File.dirname(base), "..", "lib", "gitauth"))
 
 # Start the cli client.
