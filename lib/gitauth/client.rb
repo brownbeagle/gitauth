@@ -54,16 +54,16 @@ module GitAuth
           if user.shell_accessible?
             exec(@command)
           else
-            exit_with_error "A Bad Command Has Failed Ye, Thou Shalt Not Continue."
+            exit_with_error "Invalid ssh command - Access Denied"
           end
         elsif repo.nil?
-          exit_with_error "Ze repository you specified does not exist."
+          exit_with_error "Unable to push to a non-existant repository"
         elsif user.can_execute?(command, repo)
           git_shell_argument = "#{command.verb} '#{repo.real_path}'"
           logger.info "Running command: #{git_shell_argument} for user: #{@user.name}"
           exec("git-shell", "-c", git_shell_argument)
         else
-          exit_with_error "These are not the droids you are looking for"
+          exit_with_error "Unable to execute command on this repository"
         end
       end
     rescue Exception => e
@@ -71,7 +71,7 @@ module GitAuth
       e.backtrace.each do |l|
         logger.fatal "  => #{l}"
       end
-      exit_with_error "Holy crap, we've imploded cap'n!"
+      exit_with_error "Exception raised - Please check your gitauth log / contact an administrator"
     end
     
     def self.start!(user, command)
