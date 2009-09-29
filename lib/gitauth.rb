@@ -28,7 +28,7 @@ module GitAuth
   include Perennial
   include Loggable
   
-  VERSION     = [0, 0, 4, 5]
+  VERSION     = [0, 0, 5, 0]
   BASE_DIR    = Pathname(__FILE__).dirname.join("..").expand_path
   GITAUTH_DIR = Pathname("~/.gitauth/").expand_path
   
@@ -50,8 +50,9 @@ module GitAuth
   require 'gitauth/command'        # Processes / filters commands
   require 'gitauth/client'         # Handles the actual SSH interaction / bringing it together
   
-  autoload    :AuthSetupMiddleware, 'gitauth/auth_setup_middleware'
-  autoload    :WebApp,              'gitauth/web_app'
+  autoload :AuthSetupMiddleware,  'gitauth/auth_setup_middleware'
+  autoload :ApacheAuthentication, 'gitauth/apache_authentication'
+  autoload :WebApp,               'gitauth/web_app'
   
   class << self
     

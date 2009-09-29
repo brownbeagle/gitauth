@@ -246,4 +246,16 @@ GitAuth::Application.processing(ARGV) do |a|
     groups.each { |g| puts "  - #{g.to_s}" }
   end
   
+  a.add("enable-htaccess-auth", "Generates .htaccess and .htpasswd files, disabling the built in auth") do |options|
+    die!  "Apache-based authentication is already used" if GitAuth::ApacheAuthentication.setup?
+    GitAuth::ApacheAuthentication.setup
+    puts "Apache-based authentication setup."
+  end
+  
+  a.add("disable-htaccess-auth", "Removes .htaccess and .htpasswd files, enabling the built in auth") do |options|
+    die! "Apache-based authentication is not currently used" unless GitAuth::ApacheAuthentication.setup?
+    GitAuth::ApacheAuthentication.remove
+    puts "Removed Apache-based authentication"
+  end
+  
 end

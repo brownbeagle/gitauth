@@ -43,6 +43,14 @@ module GitAuth
         print "\n"
         puts "You need to provide a password, please try again" if raw_password.blank?
       end
+      password_confirmation = nil
+      while password_confirmation != raw_password
+        system "stty -echo" 
+        password_confirmation = Readline.readline('Confirm Password: ')
+        system "stty echo"
+        print "\n"
+        puts "The confirmation doesn't match your password, please try again" if raw_password != password_confirmation
+      end
       GitAuth::Settings.update!({
         :web_username      => raw_username,
         :web_password_hash => Digest::SHA256.hexdigest(raw_password)
@@ -85,10 +93,14 @@ module GitAuth
       logger.debug "Stopped Server."
     end
     
-    use GitAuth::AuthSetupMiddleware
+    unless GitAuth::ApacheAuthentication.setup?
     
-    use Rack::Auth::Basic do |username, password|
-      [username, Digest::SHA256.hexdigest(password)] == [GitAuth::Settings["web_username"], GitAuth::Settings["web_password_hash"]]
+      use GitAuth::AuthSetupMiddleware
+    
+      use Rack::Auth::Basic do |username, password|
+        [username, Digest::SHA256.hexdigest(password)] == [GitAuth::Settings["web_username"], GitAuth::Settings["web_password_hash"]]
+      end
+    
     end
     
     configure do
