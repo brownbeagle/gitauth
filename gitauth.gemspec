@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{gitauth}
-  s.version = "0.0.5.1"
+  s.version = "0.0.5.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Darcy Laycock"]
@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.files = ["LICENSE", "README.rdoc", "USAGE", "bin/gitauth", "bin/gitauth-shell", "config.ru", "lib/gitauth", "lib/gitauth.rb", "lib/gitauth/apache_authentication.rb", "lib/gitauth/auth_setup_middleware.rb", "lib/gitauth/client.rb", "lib/gitauth/command.rb", "lib/gitauth/group.rb", "lib/gitauth/message.rb", "lib/gitauth/repo.rb", "lib/gitauth/saveable_class.rb", "lib/gitauth/user.rb", "lib/gitauth/web_app.rb", "public/gitauth.css", "public/gitauth.js", "public/jquery.js", "resources/messages.yml", "views/auth_setup.erb", "views/clone_repo.erb", "views/group.erb", "views/index.erb", "views/layout.erb", "views/repo.erb", "views/user.erb"]
   s.homepage = %q{http://brownbeagle.com.au/}
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.2}
   s.summary = %q{An authentication manager for Git repositories served over SSH}
 
   if s.respond_to? :specification_version then
