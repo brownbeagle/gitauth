@@ -28,7 +28,7 @@ module GitAuth
   include Perennial
   include Loggable
   
-  VERSION     = [0, 0, 5, 0]
+  VERSION     = [0, 0, 5, 1]
   BASE_DIR    = Pathname(__FILE__).dirname.join("..").expand_path
   GITAUTH_DIR = Pathname("~/.gitauth/").expand_path
   
