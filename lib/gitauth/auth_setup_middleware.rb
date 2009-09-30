@@ -29,15 +29,24 @@ module GitAuth
     end
     
     def _call(env)
+      @request = Rack::Request.new(env)
       if GitAuth::WebApp.has_auth?
         @app.call(env)
       elsif env["PATH_INFO"].include?("/gitauth.css")
         @files.call(env)
       else
-        content = ERB.new(File.read(GitAuth::BASE_DIR.join("views", "auth_setup.erb"))).result
+        content = ERB.new(File.read(GitAuth::BASE_DIR.join("views", "auth_setup.erb"))).result(binding)
         headers = {"Content-Type" => "text/html", "Content-Length" => Rack::Utils.bytesize(content).to_s}
         [403, headers, [content]]
       end
+    end
+    
+    def u(path)
+      "#{@request.script_name}#{path}"
+    end
+    
+    def request
+      @request
     end
     
   end

@@ -1,15 +1,9 @@
-vendor_dir = File.join(File.dirname(__FILE__), "vendor")
-
-require File.join(vendor_dir, "rack", "lib", "rack")
-require File.join(vendor_dir, "sinatra", "lib", "sinatra")
-
 require File.join(File.dirname(__FILE__), "lib", "gitauth")
 require GitAuth::BASE_DIR.join("lib", "gitauth", "web_app")
 
 GitAuth::Settings.setup!
 
 output = File.open(GitAuth::Logger.default_logger_path, "a+")
-
 STDOUT.reopen(output)
 STDERR.reopen(output)
 
