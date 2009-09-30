@@ -2,12 +2,12 @@
 <html lang='en-US' xml:lang='en-US' xmlns='http://www.w3.org/1999/xhtml'>
   <head>
     <title>GitAuth</title>
-    <link rel="stylesheet" type="text/css" href="/gitauth.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="<%=u "/gitauth.css" %>" media="screen" />
   </head>
   <body>
     <div id="container">
       <div id="header">
-        <h1><a href="/">GitAuth Admin Area</a></h1>
+        <h1><%= link-to "GitAuth Admin Area", "/ "%></h1>
       </div>
       <div id="contents">
         <div id='error-container'>

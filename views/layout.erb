@@ -2,14 +2,14 @@
 <html lang='en-US' xml:lang='en-US' xmlns='http://www.w3.org/1999/xhtml'>
   <head>
     <title>GitAuth</title>
-    <link rel="stylesheet" type="text/css" href="/gitauth.css" media="screen" />
-    <script type="text/javascript" src="/jquery.js"></script>
-    <script type="text/javascript" src="/gitauth.js"></script>
+    <link rel="stylesheet" type="text/css" href="<%= u "/gitauth.css" %>" media="screen" />
+    <script type="text/javascript" src="<%= u "/jquery.js" %>"></script>
+    <script type="text/javascript" src="<%= u "/gitauth.js" %>"></script>
   </head>
   <body>
     <div id="container">
       <div id="header">
-        <h1><a href="/">GitAuth Admin Area</a></h1>
+        <h1><%= link_to "GitAuth Admin Area", "/" %></h1>
       </div>
       <% if params[:message] %>
         <div class="message">

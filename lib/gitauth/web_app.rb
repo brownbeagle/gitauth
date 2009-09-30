@@ -118,13 +118,17 @@ module GitAuth
       alias_method :h, :escape_html
       
       def link_to(text, link)
-        "<a href='#{link}'>#{text}</a>"
+        "<a href='#{u link}'>#{text}</a>"
+      end
+      
+      def u(url)
+        "#{request.script_name}#{url}"
       end
       
       def delete_link(text, url)
         id = "deleteable-#{Digest::SHA256.hexdigest(url.to_s)[0, 6]}"
         html =  "<div class='deletable-container' style='display: none; margin: 0; padding: 0;'>"
-        html << "<form method='post' action='#{url}' id='#{id}'>"
+        html << "<form method='post' action='#{u url}' id='#{id}'>"
         html << "<input name='_method' type='hidden' value='delete' />"
         html << "</form></div>"
         html << "<a href='#' onclick='if(confirm(\"Are you sure you want to do that? Deletion can not be reversed.\")) $(\"##{id}\").submit(); return false;'>#{text}</a>"
@@ -196,7 +200,7 @@ module GitAuth
         make_empty = (params[:repo][:make_empty] == "1")
         repo.make_empty! if make_empty
         if repo.execute_post_create_hook!
-          redirect "/?repo_name=#{URI.encode(name)}&made_empty=#{make_empty ? "yes" : "no"}"
+          redirect u("/?repo_name=#{URI.encode(name)}&made_empty=#{make_empty ? "yes" : "no"}")
         else
           redirect root_with_message("Repository added but the post-create hook exited unsuccessfully.")
         end
@@ -226,7 +230,7 @@ module GitAuth
         new_permissions.each_value { |v| v.uniq! }
         repo.permissions = new_permissions
         GitAuth::Repo.save!
-        redirect "/repos/#{URI.encode(repo.name)}"
+        redirect u("/repos/#{URI.encode(repo.name)}")
       end
     end
     
@@ -286,7 +290,7 @@ module GitAuth
           end.compact - [group.to_s]
           GitAuth::Group.save!
         end
-        redirect "/groups/#{URI.encode(group.name)}"
+        redirect u("/groups/#{URI.encode(group.name)}")
       end
     end
     
@@ -303,7 +307,7 @@ module GitAuth
     # Misc Helpers
     
     def root_with_message(message)
-      "/?message=#{URI.encode(message)}"
+      u("/?message=#{URI.encode(message)}")
     end
     
   end

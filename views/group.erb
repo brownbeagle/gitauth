@@ -11,14 +11,14 @@
     <% end %>
   </ul>
   
-  <form action="/groups/<%= URI.encode(@group.name) %>" method="post">
+  <form action="<%=u "/groups/#{URI.encode(@group.name)}" %>" method="post">
     <div class="row">
       <label for="group_members">Members:</label>
       <textarea name="group[members]" id="group_members" cols="38" rows="10"><%= @group.members.join("\n") %></textarea>
       <p class="hint">Members are one-per line, groups starting with @'s</p>
     </div>
     <div class="buttons">
-      <input type="submit" value="Update Group" /> or <a href="/">Go Back</a>
+      <input type="submit" value="Update Group" /> or <%= link_to "Go Back", "/" %>
     </div>
   </form>
 </div>

@@ -31,7 +31,7 @@
     <% end %>
   </ul>
   
-  <form action="/repos/<%= URI.encode(@repo.name) %>" method="post">
+  <form action="<%=u "/repos/#{URI.encode(@repo.name)}" %>" method="post">
     <div class="row">
       <label for="repo_all"> Read &amp; Write Access:</label>
       <textarea name="repo[all]" id="repo_all" cols="38" rows="5"><%= @all_access.join("\n") %></textarea>
@@ -49,7 +49,7 @@
     </div>
     
     <div class="buttons">
-      <input type="submit" value="Update Permissions" /> or <a href="/">Go Back</a>
+      <input type="submit" value="Update Permissions" /> or <%= link_to "Go Back", "/" %>
     </div>
   </form>
 </div>
