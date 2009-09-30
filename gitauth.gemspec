@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<rack>, [">= 1.0"])
       s.add_runtime_dependency(%q<sinatra>, [">= 0.9.0"])
-      s.add_runtime_dependency(%q<perennial>, [">= 0.2.3.1"])
+      s.add_runtime_dependency(%q<perennial>, [">= 1.0.0.1"])
       s.add_development_dependency(%q<thoughtbot-shoulda>, [">= 2.0.0"])
       s.add_development_dependency(%q<redgreen>, [">= 1.0.0"])
       s.add_development_dependency(%q<rr>, [">= 0.10.0"])
@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
     else
       s.add_dependency(%q<rack>, [">= 1.0"])
       s.add_dependency(%q<sinatra>, [">= 0.9.0"])
-      s.add_dependency(%q<perennial>, [">= 0.2.3.1"])
+      s.add_dependency(%q<perennial>, [">= 1.0.0.1"])
       s.add_dependency(%q<thoughtbot-shoulda>, [">= 2.0.0"])
       s.add_dependency(%q<redgreen>, [">= 1.0.0"])
       s.add_dependency(%q<rr>, [">= 0.10.0"])
@@ -40,7 +40,7 @@ Gem::Specification.new do |s|
   else
     s.add_dependency(%q<rack>, [">= 1.0"])
     s.add_dependency(%q<sinatra>, [">= 0.9.0"])
-    s.add_dependency(%q<perennial>, [">= 0.2.3.1"])
+    s.add_dependency(%q<perennial>, [">= 1.0.0.1"])
     s.add_dependency(%q<thoughtbot-shoulda>, [">= 2.0.0"])
     s.add_dependency(%q<redgreen>, [">= 1.0.0"])
     s.add_dependency(%q<rr>, [">= 0.10.0"])

@@ -13,7 +13,7 @@ from Gitorius - http://gitorious.org
 
 Getting started is relatively simple. First of, you'll need to log onto the remote server / your git host. Next, you'll need to install the gem:
 
-  sudo gem install brownbeagle-gitauth --source http://gems.github.com/
+  sudo gem install gitauth --source http://gemcutter.org/
   
 Or, if you want to avoid the gems approach, you can use simply clone the repository
 as follows and use the git submodule setup in order to vendor rack, sinatra and perennial:

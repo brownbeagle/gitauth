@@ -34,7 +34,7 @@ task :gemspec do
     s.platform    = Gem::Platform::RUBY
     s.add_dependency "rack", ">= 1.0"
     s.add_dependency "sinatra", ">= 0.9.0"
-    s.add_dependency "perennial", ">= 0.2.3.1"
+    s.add_dependency "perennial", ">= 1.0.0.1"
     # Add in dev. dependencies
     s.add_development_dependency "thoughtbot-shoulda", ">= 2.0.0"
     s.add_development_dependency "redgreen", ">= 1.0.0"
