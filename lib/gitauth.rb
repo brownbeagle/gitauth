@@ -20,7 +20,7 @@ require 'pathname'
 
 # Prepend lib dir + any vendored lib's to the front of the load
 # path to ensure they're loaded first.
-$LOAD_PATH.unshift(*Dir[Pathname(__FILE__).dirname.join("../{lib,vendor/*/lib}").expand_path])
+$LOAD_PATH.unshift(*Dir[Pathname(__FILE__).dirname.join("../{lib,vendor/*/lib}").expand_path.to_s])
 
 require 'perennial'
 
