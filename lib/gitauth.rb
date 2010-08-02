@@ -22,16 +22,20 @@ require 'pathname'
 # path to ensure they're loaded first.
 $LOAD_PATH.unshift(*Dir[Pathname(__FILE__).dirname.join("../{lib,vendor/*/lib}").expand_path.to_s])
 
+require 'rubygems'
+
+gem 'perennial'
+
 require 'perennial'
 
 module GitAuth
   include Perennial
   include Loggable
-  
+
   VERSION     = [0, 0, 5, 2]
   BASE_DIR    = Pathname(__FILE__).dirname.join("..").expand_path
   GITAUTH_DIR = Pathname("~/.gitauth/").expand_path
-  
+
   manifest do |m, l|
     Settings.root                  = File.dirname(__FILE__)
     Settings.default_settings_path = GITAUTH_DIR.join("settings.yml")
@@ -41,7 +45,7 @@ module GitAuth
     l.register_controller :web_app, 'GitAuth::WebApp'
     l.before_run { GitAuth.prepare }
   end
-  
+
   require 'gitauth/message'        # Basic error messages etc (as of yet unushed)
   require 'gitauth/saveable_class' # Simple YAML store for dumpables classes
   require 'gitauth/repo'           # The basic GitAuth repo object
@@ -49,22 +53,22 @@ module GitAuth
   require 'gitauth/group'          # The basic GitAuth group object (collection of users)
   require 'gitauth/command'        # Processes / filters commands
   require 'gitauth/client'         # Handles the actual SSH interaction / bringing it together
-  
+
   autoload :AuthSetupMiddleware,  'gitauth/auth_setup_middleware'
   autoload :ApacheAuthentication, 'gitauth/apache_authentication'
   autoload :WebApp,               'gitauth/web_app'
-  
+
   class << self
-    
+
     def prepare
       GitAuth::Settings.setup!
       reload_models!
     end
-    
+
     def version
       VERSION.join(".")
     end
-    
+
     def msg(type, message)
       Message.new(type, message)
     end
@@ -83,18 +87,18 @@ module GitAuth
       [Repo, User, Group].each { |m| m.send(method) } if method.present?
       [Repo, User, Group].each(&blk) unless blk.nil?
     end
-    
+
     def reload_models!
       each_model(:load!)
     end
-    
+
     def run(command)
       GitAuth::Logger.info "Running command: #{command}"
       result = system "#{command} 2> /dev/null 1> /dev/null"
       GitAuth::Logger.info "Command was #{"not " if !result}successful"
       return result
     end
-    
+
   end
-  
+
 end
