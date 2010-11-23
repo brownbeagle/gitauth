@@ -26,6 +26,10 @@ module GitAuth
     
     cattr_accessor :current_server
     
+    # Somewhere between Sinatra 0.9.4 and 1.1.0, 'set :host' became 'set :bind'
+    # This fix makes both approaches work.
+    set(:bind, host) if self.respond_to?(:host)
+    
     def self.has_auth?
       username = GitAuth::Settings["web_username"]
       password = GitAuth::Settings["web_password_hash"]
@@ -77,7 +81,7 @@ module GitAuth
       handler      = detect_rack_handler
       handler_name = handler.name.gsub(/.*::/, '')
       logger.info "Starting up web server on #{port}"
-      handler.run self, :Host => host, :Port => port do |server|
+      handler.run self, :Host => bind, :Port => port do |server|
         GitAuth::WebApp.current_server = server
         set :running, true
       end
