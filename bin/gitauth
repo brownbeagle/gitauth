@@ -3,23 +3,23 @@ require File.expand_path(File.join(File.dirname(__FILE__), "..", "lib", "gitauth
 
 GitAuth::Application.processing(ARGV) do |a|
   a.banner = "GitAuth v#{GitAuth.version}"
-  
+
   a.generator!
-  
+
   a.option(:force, "force the creation of the settings file")
   a.option(:admin, "pass the path to a ssh public key and it adds a default admin user")
   a.add("install", "Sets up GitAuth for the current user") do |options|
-    
+
     setup_generator ".", :silent => true
-    
+
     # Check for a valid admin key
     if options.has_key?(:admin) && (!options[:admin].is_a?(String) || !file?(options[:admin]))
       puts "You provided the admin option but didn't provide it with a path to public key."
       die! "Please re-run again with a path to a key, e.g. --admin=~/id_rsa.pub"
     end
-    
+
     if !yes?("Are you logged in as the correct user?")
-      die!("Please log in as the correct user and re-run") 
+      die!("Please log in as the correct user and re-run")
     end
 
     if !GitAuth.has_git?
@@ -76,29 +76,29 @@ GitAuth::Application.processing(ARGV) do |a|
         die! "Error adding default admin user with key at '#{options[:admin]}'"
       end
     end
-    
+
   end
 
   a.controller!(:web_app, "Starts the gitauth frontend using the default sintra runner", :skip_path => true)
-  
+
   a.option(:force, "Skip the verification / confirmation part of adding the permissions")
   a.option(:type, "The type of permissions - one of all, read, write or none. Defaults to all")
   full_desc = "Gives a specific user or group the specified permissions to a given repository"
   a.add("permissions REPOSITORY USER-OR-GROUP", full_desc) do |repo, target, options|
     GitAuth.prepare
     permissions = options[:type] || 'all'
-    
+
     if !%w(all read write none).include? permissions
       die! "'#{permissions}' is not a valid permission type. It must be all, read, write or none"
     end
-    
+
     real_permissions = ({"all" => ["read", "write"], "none" => []}[permissions] || [permissions])
     repository       = GitAuth::Repo.get(repo)
     real_target      = GitAuth.get_user_or_group(target)
-    
+
     die! "Unknown repository '#{repo}'"      if repository.blank?
     die! "Unknown user or group '#{target}'" if real_target.blank?
-    
+
     if options[:force] || yes?("Adding '#{permissions}' permissions for #{real_target} to #{repository.name}")
       repository.update_permissions!(real_target, real_permissions)
       puts "Permissions updated."
@@ -106,7 +106,7 @@ GitAuth::Application.processing(ARGV) do |a|
       puts "Permissions not added, exiting."
     end
   end
-    
+
   a.option(:admin, "Makes a user an admin user")
   a.add("add-user NAME PATH-TO-PUBLIC-KEY", "Creates a user with a given public key") do |name, ssh_key, options|
     GitAuth.prepare
@@ -119,7 +119,7 @@ GitAuth::Application.processing(ARGV) do |a|
       die! "There was an unknown error attempting to add a user called '#{name}'"
     end
   end
-  
+
   a.option(:make_empty, "Initializes the repository to be empty / have an initial blank commit")
   a.add("add-repo NAME [PATH=NAME]", "Creates a named repository, with an optional path on the file system") do |name, *args|
     GitAuth.prepare
@@ -135,7 +135,7 @@ GitAuth::Application.processing(ARGV) do |a|
       die! "Unable to create repository '#{name}' in location '#{path}'"
     end
   end
-  
+
   a.add("add-group NAME", "Creates a group with a given name") do |name, options|
     GitAuth.prepare
     if GitAuth::Group.create(name)
@@ -144,7 +144,24 @@ GitAuth::Application.processing(ARGV) do |a|
       die! "Unable to create group '#{name}'"
     end
   end
-  
+
+  a.add("add-user-to-group GROUP USER", "Adds a user to a group") do |user_name, group_name, options|
+    GitAuth.prepare
+
+    group = GitAuth::Group.get(group_name)
+    die! "Unable to find group '#{group_name}'" unless group
+
+    user = GitAuth::User.get(user_name)
+    die! "Unable to find user '#{user_name}'" unless user
+
+    group.add_member user.name
+    if group.class.save!
+      puts "Successfully added '#{user_name}' group '#{group_name}'"
+    else
+      die! "Unable to save group '#{group_name}'"
+    end
+  end
+
   a.add("ls-users", "Lists all users currently managed by gitauth") do |options|
     GitAuth.prepare
     puts "Users:"
@@ -154,7 +171,7 @@ GitAuth::Application.processing(ARGV) do |a|
       puts line
     end
   end
-  
+
   a.add("ls-repos", "Lists all repositories currently managed by gitauth") do |options|
     GitAuth.prepare
     puts "Repositories:"
@@ -164,7 +181,7 @@ GitAuth::Application.processing(ARGV) do |a|
       puts line
     end
   end
-  
+
   a.add("ls-groups", "Lists all groups currently managed by gitauth") do |options|
     GitAuth.prepare
     puts "Groups:"
@@ -172,7 +189,7 @@ GitAuth::Application.processing(ARGV) do |a|
       puts "- #{group} (#{group.members.empty? ? "no members" : group.members.join(", ")})"
     end
   end
-  
+
   a.add("rm-user NAME", "Removes the specified user") do |name, options|
     GitAuth.prepare
     user = GitAuth::User.get(name)
@@ -180,7 +197,7 @@ GitAuth::Application.processing(ARGV) do |a|
     user.destroy!
     puts "Removed user '#{name}' - Please note you will manually need to remove this users line from authorized_keys"
   end
-  
+
   a.add("rm-repo NAME", "Removes the specified repo") do |name, options|
     GitAuth.prepare
     repo = GitAuth::Repo.get(name)
@@ -188,7 +205,7 @@ GitAuth::Application.processing(ARGV) do |a|
     repo.destroy!
     puts "Removed repo '#{name}'"
   end
-  
+
   a.add("rm-group NAME", "Removes the specified group") do |name, options|
     GitAuth.prepare
     group = GitAuth::Group.get(name)
@@ -196,7 +213,7 @@ GitAuth::Application.processing(ARGV) do |a|
     group.destroy!
     puts "Removed group '#{name}'"
   end
-  
+
   a.add("usage", "Prints out the sample usage instructions") do |options|
     pager = nil
     if ENV.has_key?('PAGER')
@@ -206,7 +223,7 @@ GitAuth::Application.processing(ARGV) do |a|
     end
     exec "#{pager} '#{GitAuth::BASE_DIR.join("USAGE")}'"
   end
-  
+
   a.add("show-repo NAME", "Shows information for a repository with a given name") do |name, options|
     GitAuth.prepare
     repo = GitAuth::Repo.get(name)
@@ -223,7 +240,7 @@ GitAuth::Application.processing(ARGV) do |a|
     write_perms.each { |item| puts "  - #{item}" }
     puts "  - No write permissions" if write_perms.blank?
   end
-  
+
   a.add("show-group NAME", "Shows information for a group with a given name") do |name, options|
     GitAuth.prepare
     group = GitAuth::Group.get(name)
@@ -234,7 +251,7 @@ GitAuth::Application.processing(ARGV) do |a|
     group.members.each { |member| puts "  - #{member}" }
     puts "  - This group has no members" if group.members.blank?
   end
-  
+
   a.add("show-user NAME", "Shows details for a user with a specific name") do |name, options|
     GitAuth.prepare
     user = GitAuth::User.get(name)
@@ -245,17 +262,17 @@ GitAuth::Application.processing(ARGV) do |a|
     puts "  - This user isn't a member of any groups" if groups.blank?
     groups.each { |g| puts "  - #{g.to_s}" }
   end
-  
+
   a.add("enable-htaccess-auth", "Generates .htaccess and .htpasswd files, disabling the built in auth") do |options|
     die!  "Apache-based authentication is already used" if GitAuth::ApacheAuthentication.setup?
     GitAuth::ApacheAuthentication.setup
     puts "Apache-based authentication setup."
   end
-  
+
   a.add("disable-htaccess-auth", "Removes .htaccess and .htpasswd files, enabling the built in auth") do |options|
     die! "Apache-based authentication is not currently used" unless GitAuth::ApacheAuthentication.setup?
     GitAuth::ApacheAuthentication.remove
     puts "Removed Apache-based authentication"
   end
-  
+
 end
