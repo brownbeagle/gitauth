@@ -30,7 +30,7 @@ Available commands include:
     or,: gitauth add-group brownbeagle
     
     From there on in, you can refer to the group as @brownbeagle
-    
+
   add-repo    - Adds a repository with a specific name and an optional path
     e.g: gitauth add-repo project-a
     or,: gitauth add-repo project-b --make-empty
