@@ -214,6 +214,23 @@ GitAuth::Application.processing(ARGV) do |a|
     puts "Removed group '#{name}'"
   end
 
+  a.add("rm-user-from-group USER GROUP", "Remove a user from a group") do |user_name, group_name, options|
+    GitAuth.prepare
+
+    group = GitAuth::Group.get(group_name)
+    die! "Unable to find group '#{group_name}'" unless group
+
+    user = GitAuth::User.get(user_name)
+    die! "Unable to find user '#{user_name}'" unless user
+
+    group.remove_member user.name
+    if group.class.save!
+      puts "Successfully removed '#{user_name}' from group '#{group_name}'"
+    else
+      die! "Unable to save group '#{group_name}'"
+    end
+  end
+
   a.add("usage", "Prints out the sample usage instructions") do |options|
     pager = nil
     if ENV.has_key?('PAGER')
