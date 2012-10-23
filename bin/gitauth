@@ -145,7 +145,7 @@ GitAuth::Application.processing(ARGV) do |a|
     end
   end
 
-  a.add("add-user-to-group GROUP USER", "Adds a user to a group") do |user_name, group_name, options|
+  a.add("add-user-to-group USER GROUP", "Adds a user to a group") do |user_name, group_name, options|
     GitAuth.prepare
 
     group = GitAuth::Group.get(group_name)
@@ -156,7 +156,7 @@ GitAuth::Application.processing(ARGV) do |a|
 
     group.add_member user.name
     if group.class.save!
-      puts "Successfully added '#{user_name}' group '#{group_name}'"
+      puts "Successfully added '#{user_name}' to group '#{group_name}'"
     else
       die! "Unable to save group '#{group_name}'"
     end
