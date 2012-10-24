@@ -20,8 +20,7 @@ as follows and use the git submodule setup in order to vendor rack, sinatra and 
 
   git clone git://github.com/brownbeagle/gitauth.git
   cd gitauth
-  git submodule init
-  git submodule update
+  bundle install
   
 With the gitauth binary being in the bin folder.
   
