@@ -30,7 +30,7 @@ module GitAuth
 
     def self.create(name, path = name)
       return false if name.nil? || path.nil?
-      return false if self.get(name) || self.all.any? { |r| r.path == path } || name !~ NAME_RE || path !~ NAME_RE
+      return false if self.get(name) || self.all.any? { |r| r.path == path } || !valid_name?(name) || !valid_path?(path)
 
       repository = new(name, path)
       return false unless repository.create_repo!
@@ -47,6 +47,14 @@ module GitAuth
 
     def ==(other)
       other.is_a?(Repo) && other.name == name && other.path == path
+    end
+
+    def self.valid_name? name
+      name =~ NAME_RE and name !~ /\.\.\//
+    end
+
+    def self.valid_path? path
+      path =~ NAME_RE and path !~ /\.\.\//
     end
 
     def writeable_by(whom)
