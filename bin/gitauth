@@ -110,10 +110,9 @@ GitAuth::Application.processing(ARGV) do |a|
   a.option(:admin, "Makes a user an admin user")
   a.add("add-user NAME PATH-TO-PUBLIC-KEY", "Creates a user with a given public key") do |name, ssh_key, options|
     GitAuth.prepare
-    die! "'#{ssh_key}' is not a valid path to a public key" if !File.file?(ssh_key)
     admin = !!options[:admin]
-    contents = File.read(ssh_key).strip
-    if GitAuth::User.create(name, admin, contents)
+    user =  GitAuth::User.create(name, admin, ssh_key)
+    if user
       puts "Successfully added user '#{name}' (user #{admin ? 'is' : 'is not'} an admin)"
     else
       die! "There was an unknown error attempting to add a user called '#{name}'"
@@ -159,6 +158,19 @@ GitAuth::Application.processing(ARGV) do |a|
       puts "Successfully added '#{user_name}' to group '#{group_name}'"
     else
       die! "Unable to save group '#{group_name}'"
+    end
+  end
+
+  a.add("add-key USER KEY", "Adds a key to a user") do |user_name, key, options|
+    GitAuth.prepare
+
+    user = GitAuth::User.get(user_name)
+    die! "Unable to find user '#{user_name}'" unless user
+
+    if user.add_key_or_file!(key)
+      puts "Successfully added new key to '#{user_name}'"
+    else
+      die! "Unable to save key for '#{user_name}'"
     end
   end
 
@@ -213,6 +225,20 @@ GitAuth::Application.processing(ARGV) do |a|
     group.destroy!
     puts "Removed group '#{name}'"
   end
+
+  a.add("rm-key USER KEY", "Adds a users SSH key") do |user_name, key, options|
+    GitAuth.prepare
+
+    user = GitAuth::User.get(user_name)
+    die! "Unable to find user '#{user_name}'" unless user
+
+    if user.remove_key!(key)
+      puts "Successfully removed new key for '#{user_name}'"
+    else
+      die! "Unable to save key for '#{user_name}'"
+    end
+  end
+
 
   a.add("rm-user-from-group USER GROUP", "Remove a user from a group") do |user_name, group_name, options|
     GitAuth.prepare
@@ -276,8 +302,12 @@ GitAuth::Application.processing(ARGV) do |a|
     puts "User Name: #{user.name}"
     groups = user.groups
     puts "\nGroups:"
-    puts "  - This user isn't a member of any groups" if groups.blank?
+    puts "  - This user isn't a member of any group" if groups.blank?
     groups.each { |g| puts "  - #{g.to_s}" }
+    keys = user.keys
+    puts "\nSSH Keys:"
+    puts "  - This user has no keys" if keys.empty?
+    keys.each_key { |k| puts "  - #{k.to_s}" }
   end
 
   a.add("enable-htaccess-auth", "Generates .htaccess and .htpasswd files, disabling the built in auth") do |options|
