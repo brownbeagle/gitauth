@@ -13,18 +13,19 @@ from Gitorius - http://gitorious.org
 
 Getting started is relatively simple. First of, you'll need to log onto the remote server / your git host. Next, you'll need to install the gem:
 
-  sudo gem install gitauth --source http://gemcutter.org/
+  sudo gem install gitauth
+
+Once that's done, the +gitauth+ and +gitauth-shell+ commands should be in your path.
   
 Or, if you want to avoid the gems approach, you can use simply clone the repository
-as follows and use the git submodule setup in order to vendor rack, sinatra and perennial:
+as follows and use bundler to install its dependencies.
 
   git clone git://github.com/brownbeagle/gitauth.git
   cd gitauth
   bundle install
   
-With the gitauth binary being in the bin folder.
+With the gitauth executable being in the bin folder. Make sure that folder is in your path.
   
-Once that's done, the +gitauth+ and +gitauth-shell+ commands should be in your path.
 Next, you'll want to (in most cases anyway) use a specific +git+ user to host repositories.
 
 Using the example of ubuntu, we'll add a git user under which all actions will now take place (note, this is essentially the same as gitosis):
@@ -103,6 +104,16 @@ Where permission type is read, write or all. If permission
 type isn't specified, it will default to all. If you wish
 to remove a user from a repository, you can simply pass
 use the type as none.
+
+=== Managing Groups
+
+To add a user to a group use the +add-user-to-group+.
+
+  gitauth add-user-to-group user-name group-name
+
+To remove a user from a group use `rm-user-from-group`.
+
+  gitauth rm-user-from-group user-name group-name
 
 === Accessing repos:
 
