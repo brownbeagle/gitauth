@@ -144,7 +144,7 @@ module GitAuth
     end
 
     get '/' do
-      @repos  = GitAuth::Repo.all
+      @repos  = GitAuth::Repo.all.sort { |a,b| a.path <=> b.path }
       @users  = GitAuth::User.all
       @groups = GitAuth::Group.all
       erb :index
