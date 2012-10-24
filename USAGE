@@ -43,6 +43,10 @@ Available commands include:
     it externally. e.g, project-c above would be accessible by:
     user@your-server.com:project-c or user@your-server.com:project-c.git
 
+  add-key     - Adds a key for a user
+    e.g: gitauth add-key user-name path-to-file
+    e.g: gitauth add-key user-name "ssh-rsa KEY user@machine"
+
   add-user-to-group  - Adds a user to a group
     e.g: gitauth add-user-to-group user-name group-name
   
@@ -55,6 +59,9 @@ Available commands include:
 
   rm-repo     - Removes a repository from gitauth (destroys it on the filesystem as well)
     e.g: gitauth rm-repo project-a
+
+  rm-key      - Remove a key for user from authorized_keys file
+    e.g: gitauth rm-key user-name leoc@machine
 
   rm-user-from-group  - Remove a user to a group
     e.g: gitauth rm-user-from-group user-name group-name
