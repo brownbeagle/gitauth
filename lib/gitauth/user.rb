@@ -126,7 +126,7 @@ module GitAuth
       if File.exists?(arg)
         add_key File.read(arg)
       else
-        add_key key
+        add_key arg
       end
     end
 
